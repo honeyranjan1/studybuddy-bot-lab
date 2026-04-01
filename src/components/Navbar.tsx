@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, LayoutDashboard, MessageSquare, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import UserDropdown from "./UserDropdown";
 
 const navLinks = [
   { to: "/", label: "Home", icon: BookOpen },
@@ -13,6 +15,7 @@ const navLinks = [
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { session, loading } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
@@ -44,12 +47,20 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost">Log in</Button>
-          </Link>
-          <Link to="/signup">
-            <Button variant="hero" size="sm">Get Started</Button>
-          </Link>
+          {!loading && (
+            session ? (
+              <UserDropdown />
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost">Log in</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button variant="hero" size="sm">Get Started</Button>
+                </Link>
+              </>
+            )
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -83,12 +94,20 @@ const Navbar = () => {
                 );
               })}
               <div className="border-t border-border pt-2 mt-2 flex flex-col gap-2">
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" className="w-full">Log in</Button>
-                </Link>
-                <Link to="/signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="hero" className="w-full">Get Started</Button>
-                </Link>
+                {session ? (
+                  <div className="px-2">
+                    <UserDropdown />
+                  </div>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setMobileOpen(false)}>
+                      <Button variant="ghost" className="w-full">Log in</Button>
+                    </Link>
+                    <Link to="/signup" onClick={() => setMobileOpen(false)}>
+                      <Button variant="hero" className="w-full">Get Started</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
