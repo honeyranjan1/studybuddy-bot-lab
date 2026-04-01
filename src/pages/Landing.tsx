@@ -11,8 +11,8 @@ import {
   BookOpen,
   Zap,
   Target,
-  Users,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const features = [
   {
