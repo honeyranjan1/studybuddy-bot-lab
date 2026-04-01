@@ -96,7 +96,7 @@ const Chat = () => {
             <div>
               <h1 className="font-display font-semibold text-foreground">AI Tutor</h1>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                <span className="w-2 h-2 rounded-full bg-primary inline-block" />
                 Online • Ready to help
               </p>
             </div>
