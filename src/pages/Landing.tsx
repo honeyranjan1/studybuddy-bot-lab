@@ -64,6 +64,9 @@ const stats = [
 ];
 
 const Landing = () => {
+  const { session, profile } = useAuth();
+  const firstName = profile?.full_name?.split(" ")[0];
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
