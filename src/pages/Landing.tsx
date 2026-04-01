@@ -87,24 +87,37 @@ const Landing = () => {
               AI-Powered Learning Platform
             </div>
             <h1 className="text-5xl md:text-7xl font-display font-bold leading-tight mb-6">
-              Learn Smarter with Your{" "}
-              <span className="text-gradient">AI Tutor</span>
+              {session && firstName ? (
+                <>Welcome back, {firstName}! <br />Your{" "}<span className="text-gradient">AI Tutor</span> awaits</>
+              ) : (
+                <>Learn Smarter with Your{" "}<span className="text-gradient">AI Tutor</span></>
+              )}
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Personalized lessons, adaptive quizzes, and real-time feedback — all powered by AI that understands how you learn best.
+              {session
+                ? "Pick up where you left off or explore something new today."
+                : "Personalized lessons, adaptive quizzes, and real-time feedback — all powered by AI that understands how you learn best."}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/chat">
                 <Button variant="hero" size="lg" className="text-base px-8 py-6">
-                  Start Learning Free
+                  {session ? "Start Learning" : "Start Learning Free"}
                   <ArrowRight className="w-5 h-5 ml-1" />
                 </Button>
               </Link>
-              <Link to="/dashboard">
-                <Button variant="outline" size="lg" className="text-base px-8 py-6">
-                  View Dashboard
-                </Button>
-              </Link>
+              {session ? (
+                <Link to="/dashboard">
+                  <Button variant="outline" size="lg" className="text-base px-8 py-6">
+                    View Progress
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/signup">
+                  <Button variant="outline" size="lg" className="text-base px-8 py-6">
+                    Get Started
+                  </Button>
+                </Link>
+              )}
             </div>
           </motion.div>
 
