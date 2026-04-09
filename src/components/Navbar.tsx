@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LayoutDashboard, MessageSquare, Menu, X } from "lucide-react";
+import { BookOpen, LayoutDashboard, MessageSquare, Menu, X, ClipboardList } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ import UserDropdown from "./UserDropdown";
 const navLinks = [
   { to: "/", label: "Home", icon: BookOpen },
   { to: "/chat", label: "AI Tutor", icon: MessageSquare },
+  { to: "/quiz", label: "Quiz", icon: ClipboardList },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
 
