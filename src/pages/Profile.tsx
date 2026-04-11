@@ -33,6 +33,9 @@ const Profile = () => {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) { toast.error("Only JPEG, PNG, WebP or GIF images are allowed"); return; }
+    if (file.size > 2 * 1024 * 1024) { toast.error("Image must be under 2MB"); return; }
     const ext = file.name.split(".").pop();
     const filePath = `${user.id}/avatar.${ext}`;
     const { error } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
