@@ -101,8 +101,7 @@ const Quiz = () => {
   };
 
   const finishQuiz = async () => {
-    const finalAnswers = [...answers, parseInt(selectedAnswer)];
-    const correct = finalAnswers.filter((a, i) => a === questions[i].correctIndex).length;
+    const correct = answers.filter((a, i) => a === questions[i].correctIndex).length;
     const score = Math.round((correct / questions.length) * 100);
 
     setState("results");
