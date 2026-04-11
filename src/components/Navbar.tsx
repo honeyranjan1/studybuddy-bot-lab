@@ -25,7 +25,7 @@ const Navbar = () => {
           <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
             <BookOpen className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-lg text-foreground">LearnAI</span>
+          <span className="font-display font-bold text-lg text-foreground">StudyBuddy AI</span>
         </Link>
 
         {/* Desktop nav */}

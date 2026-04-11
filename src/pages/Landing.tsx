@@ -134,7 +134,7 @@ const Landing = () => {
                   <Brain className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <p className="font-display font-semibold text-foreground">LearnAI Tutor</p>
+                  <p className="font-display font-semibold text-foreground">StudyBuddy AI Tutor</p>
                   <p className="text-xs text-muted-foreground">Online • Ready to help</p>
                 </div>
               </div>
@@ -278,9 +278,12 @@ const Landing = () => {
             <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-foreground">LearnAI</span>
+            <span className="font-display font-bold text-foreground">StudyBuddy AI</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2026 LearnAI. Making learning personal.</p>
+          <div className="text-center md:text-right">
+            <p className="text-sm text-muted-foreground">© 2026 StudyBuddy AI. Making learning personal.</p>
+            <p className="text-xs text-muted-foreground mt-1">Built by Honey Ranjan, Satyam Pandey, Siddhant Singh, Suryansh & Nikhil Singh</p>
+          </div>
         </div>
       </footer>
     </div>
