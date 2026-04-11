@@ -13,6 +13,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Transform messages: support both string content and multimodal content arrays
+    const transformedMessages = messages.map((msg: any) => {
+      // If content is already an array (multimodal), pass through
+      if (Array.isArray(msg.content)) {
+        return msg;
+      }
+      // Otherwise wrap string in standard format
+      return msg;
+    });
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -20,11 +30,11 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "system",
-            content: `You are an expert AI tutor for students. You help with Math, Science, English, Coding, and other subjects.
+            content: `You are an expert AI tutor for students called StudyBuddy AI. You help with Math, Science, English, Coding, and other subjects.
 
 Guidelines:
 - Break down complex topics into simple, easy-to-understand explanations
@@ -35,9 +45,12 @@ Guidelines:
 - Ask follow-up questions to check understanding
 - If a student is struggling, try a different approach
 - Format responses with markdown for better readability
-- Keep responses focused and concise`
+- Keep responses focused and concise
+- When an image is provided, carefully analyze it and answer questions about it
+- If the image contains a math problem, equation, or question, solve it step by step
+- If the image is unclear, ask the student to provide a clearer image`
           },
-          ...messages,
+          ...transformedMessages,
         ],
         stream: true,
       }),
