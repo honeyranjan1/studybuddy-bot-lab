@@ -79,14 +79,19 @@ const Signup = () => {
       // Upload avatar if provided
       let avatarUrl: string | null = null;
       if (avatarFile) {
-        const ext = avatarFile.name.split(".").pop();
-        const filePath = `${userId}/avatar.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, avatarFile, { upsert: true });
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-          avatarUrl = urlData.publicUrl;
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+        if (!allowedTypes.includes(avatarFile.type)) { toast.error("Only JPEG, PNG, WebP or GIF images are allowed"); }
+        else if (avatarFile.size > 2 * 1024 * 1024) { toast.error("Image must be under 2MB"); }
+        else {
+          const ext = avatarFile.name.split(".").pop();
+          const filePath = `${userId}/avatar.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from("avatars")
+            .upload(filePath, avatarFile, { upsert: true });
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+            avatarUrl = urlData.publicUrl;
+          }
         }
       }
 
