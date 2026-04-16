@@ -14,6 +14,144 @@ export type Database = {
   }
   public: {
     Tables: {
+      dsa_progress: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_completed: boolean
+          notes: string | null
+          topic_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          notes?: string | null
+          topic_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          notes?: string | null
+          topic_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exam_countdowns: {
+        Row: {
+          created_at: string
+          exam_date: string
+          exam_name: string
+          id: string
+          is_active: boolean
+          subject: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exam_date: string
+          exam_name: string
+          id?: string
+          is_active?: boolean
+          subject?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exam_date?: string
+          exam_name?: string
+          id?: string
+          is_active?: boolean
+          subject?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcards: {
+        Row: {
+          back: string
+          created_at: string
+          deck_name: string
+          front: string
+          id: string
+          is_mastered: boolean
+          subject: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          back: string
+          created_at?: string
+          deck_name?: string
+          front: string
+          id?: string
+          is_mastered?: boolean
+          subject: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          back?: string
+          created_at?: string
+          deck_name?: string
+          front?: string
+          id?: string
+          is_mastered?: boolean
+          subject?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generated_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_favorite: boolean
+          subject: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          subject: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          subject?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       learning_streaks: {
         Row: {
           created_at: string
@@ -112,6 +250,45 @@ export type Database = {
           subject?: string
           topic?: string
           total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      study_partners: {
+        Row: {
+          availability: string | null
+          bio: string | null
+          created_at: string
+          goals: string | null
+          id: string
+          is_visible: boolean
+          semester: string | null
+          subjects: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          bio?: string | null
+          created_at?: string
+          goals?: string | null
+          id?: string
+          is_visible?: boolean
+          semester?: string | null
+          subjects?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          bio?: string | null
+          created_at?: string
+          goals?: string | null
+          id?: string
+          is_visible?: boolean
+          semester?: string | null
+          subjects?: string[]
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

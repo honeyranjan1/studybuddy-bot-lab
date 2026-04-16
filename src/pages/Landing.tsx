@@ -2,65 +2,32 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
-  Brain,
-  MessageSquare,
-  BarChart3,
-  Trophy,
-  Sparkles,
-  ArrowRight,
-  BookOpen,
-  Zap,
-  Target,
+  BookOpen, MessageSquare, BarChart3, Trophy, ArrowRight, Zap, Target,
+  FileText, Briefcase, Users, Brain, Sparkles, CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const features = [
-  {
-    icon: MessageSquare,
-    title: "AI Tutor Chat",
-    description: "Get instant help on any topic with our conversational AI that adapts to your learning style.",
-  },
-  {
-    icon: Brain,
-    title: "Adaptive Learning",
-    description: "Smart algorithms track your strengths and weaknesses, tailoring lessons just for you.",
-  },
-  {
-    icon: BarChart3,
-    title: "Progress Tracking",
-    description: "Visualize your growth with detailed dashboards and exportable progress reports.",
-  },
-  {
-    icon: Trophy,
-    title: "Gamification",
-    description: "Stay motivated with badges, streaks, XP points, and achievement milestones.",
-  },
-  {
-    icon: Zap,
-    title: "Dynamic Quizzes",
-    description: "AI-generated quizzes adapt in difficulty based on your real-time performance.",
-  },
-  {
-    icon: Target,
-    title: "Step-by-Step Solutions",
-    description: "Break down complex problems into clear, digestible steps with detailed explanations.",
-  },
+  { icon: FileText, title: "Generate Notes", description: "AI creates structured, comprehensive study notes from any topic instantly.", emoji: "📘" },
+  { icon: Brain, title: "Practice Quiz", description: "AI-generated quizzes adapt in difficulty based on your performance.", emoji: "🧠" },
+  { icon: Users, title: "Find Study Partner", description: "Smart matching connects you with partners who share your goals.", emoji: "🤝" },
+  { icon: BarChart3, title: "Track Progress", description: "Visualize your growth with detailed dashboards and streak tracking.", emoji: "📊" },
+  { icon: FileText, title: "PDF Summary Tool", description: "Upload any PDF — get summaries, key points, and flashcards instantly.", emoji: "📄" },
+  { icon: Briefcase, title: "Placement Mode", description: "DSA tracker, interview prep, coding checklists — all in one place.", emoji: "💼" },
 ];
 
-const subjects = [
-  { name: "Mathematics", emoji: "📐", color: "bg-primary/10 text-primary" },
-  { name: "Science", emoji: "🔬", color: "bg-accent/10 text-accent" },
-  { name: "English", emoji: "📝", color: "bg-primary/10 text-primary" },
-  { name: "History", emoji: "🏛️", color: "bg-accent/10 text-accent" },
-  { name: "Coding", emoji: "💻", color: "bg-primary/10 text-primary" },
-  { name: "Languages", emoji: "🌍", color: "bg-accent/10 text-accent" },
+const howItWorks = [
+  { step: "1", title: "Enter Subject", description: "Pick any topic or subject you want to study." },
+  { step: "2", title: "Generate Notes", description: "AI creates structured notes, flashcards, or quizzes." },
+  { step: "3", title: "Practice Quiz", description: "Test your knowledge with adaptive questions." },
+  { step: "4", title: "Track Progress", description: "Monitor streaks, XP, and weak areas." },
 ];
 
-const stats = [
-  { value: "50K+", label: "Active Students" },
-  { value: "1M+", label: "Lessons Completed" },
-  { value: "95%", label: "Satisfaction Rate" },
-  { value: "200+", label: "Subjects Covered" },
+const whyUs = [
+  { icon: Zap, title: "Saves Study Time", description: "Generate notes and flashcards in seconds, not hours." },
+  { icon: Brain, title: "Improves Retention", description: "Spaced repetition and active recall built in." },
+  { icon: Briefcase, title: "Placement Ready", description: "DSA tracking, mock interviews, and coding checklists." },
+  { icon: Target, title: "Structured Revision", description: "AI identifies weak topics and builds a revision plan." },
 ];
 
 const Landing = () => {
@@ -70,7 +37,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 gradient-surface opacity-60" />
         <div className="absolute top-20 right-10 w-72 h-72 rounded-full bg-primary/5 blur-3xl animate-pulse-glow" />
         <div className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-accent/5 blur-3xl animate-pulse-glow" />
@@ -84,40 +51,33 @@ const Landing = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
-              AI-Powered Learning Platform
+              AI-Powered Study Platform for Engineers
             </div>
-            <h1 className="text-5xl md:text-7xl font-display font-bold leading-tight mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight mb-6">
               {session && firstName ? (
-                <>Welcome back, {firstName}! <br />Your{" "}<span className="text-gradient">AI Tutor</span> awaits</>
+                <>Welcome back, {firstName}! <br />Your <span className="text-gradient">AI Study Partner</span> awaits</>
               ) : (
-                <>Learn Smarter with Your{" "}<span className="text-gradient">AI Tutor</span></>
+                <>Your AI-powered study partner for <span className="text-gradient">smarter learning</span> and placement preparation</>
               )}
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               {session
-                ? "Pick up where you left off or explore something new today."
-                : "Personalized lessons, adaptive quizzes, and real-time feedback — all powered by AI that understands how you learn best."}
+                ? "Pick up where you left off — generate notes, practice quizzes, or prep for placements."
+                : "Generate notes, practice quizzes, find study partners, and track your progress — all in one place."}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/chat">
+              <Link to={session ? "/chat" : "/signup"}>
                 <Button variant="hero" size="lg" className="text-base px-8 py-6">
-                  {session ? "Start Learning" : "Start Learning Free"}
+                  Start Studying Free
                   <ArrowRight className="w-5 h-5 ml-1" />
                 </Button>
               </Link>
-              {session ? (
-                <Link to="/dashboard">
-                  <Button variant="outline" size="lg" className="text-base px-8 py-6">
-                    View Progress
-                  </Button>
-                </Link>
-              ) : (
-                <Link to="/signup">
-                  <Button variant="outline" size="lg" className="text-base px-8 py-6">
-                    Get Started
-                  </Button>
-                </Link>
-              )}
+              <Link to={session ? "/partners" : "/signup"}>
+                <Button variant="outline" size="lg" className="text-base px-8 py-6">
+                  <Users className="w-5 h-5 mr-1" />
+                  Find Study Partner
+                </Button>
+              </Link>
             </div>
           </motion.div>
 
@@ -141,17 +101,17 @@ const Landing = () => {
               <div className="space-y-3">
                 <div className="flex justify-start">
                   <div className="bg-secondary rounded-2xl rounded-tl-md px-4 py-3 max-w-xs">
-                    <p className="text-sm text-secondary-foreground">Hi Alex! 👋 Ready to learn today? What subject do you want to work on?</p>
+                    <p className="text-sm text-secondary-foreground">Hi! 👋 Ready to study? I can generate notes, create flashcards, or help with DSA prep!</p>
                   </div>
                 </div>
                 <div className="flex justify-end">
                   <div className="gradient-hero rounded-2xl rounded-tr-md px-4 py-3 max-w-xs">
-                    <p className="text-sm text-primary-foreground">Help me understand fractions!</p>
+                    <p className="text-sm text-primary-foreground">Generate notes on Binary Search Trees!</p>
                   </div>
                 </div>
                 <div className="flex justify-start">
                   <div className="bg-secondary rounded-2xl rounded-tl-md px-4 py-3 max-w-sm">
-                    <p className="text-sm text-secondary-foreground">Great choice! 🎯 Let's start with the basics. A fraction represents a part of a whole. Think of it like slicing a pizza... 🍕</p>
+                    <p className="text-sm text-secondary-foreground">Great choice! 🎯 Here are structured notes on BST — covering insertion, deletion, traversal, and time complexities... 🌳</p>
                   </div>
                 </div>
               </div>
@@ -160,23 +120,28 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-16 border-y border-border bg-card">
+      {/* Social Proof */}
+      <section className="py-12 border-y border-border bg-card">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center"
-              >
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </motion.div>
-            ))}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="w-8 h-8 rounded-full gradient-hero border-2 border-card flex items-center justify-center text-xs text-primary-foreground font-bold">
+                    {String.fromCharCode(64 + i)}
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">100+</span> engineering students</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-primary" />
+              <p className="text-sm text-muted-foreground">Helps improve <span className="font-semibold text-foreground">retention & revision speed</span></p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-accent" />
+              <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">Placement ready</span> preparation</p>
+            </div>
           </div>
         </div>
       </section>
@@ -189,7 +154,7 @@ const Landing = () => {
               Everything You Need to <span className="text-gradient">Excel</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Our AI-powered platform combines the best of personalized tutoring with cutting-edge technology.
+              AI-powered tools designed specifically for engineering students and placement preparation.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -204,8 +169,11 @@ const Landing = () => {
                   transition={{ delay: i * 0.1 }}
                   className="bg-card border border-border rounded-2xl p-6 hover:shadow-elevated transition-all duration-300 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Icon className="w-6 h-6 text-primary" />
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">{feature.emoji}</span>
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
                   </div>
                   <h3 className="font-display font-semibold text-lg mb-2 text-foreground">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
@@ -216,29 +184,67 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Subjects */}
+      {/* How It Works */}
       <section className="py-24 px-4 bg-card border-y border-border">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-display font-bold mb-4 text-foreground">
-              Learn Any Subject
+              How It Works
             </h2>
-            <p className="text-muted-foreground text-lg">Pick a subject and start learning instantly.</p>
+            <p className="text-muted-foreground text-lg">Get started in 4 simple steps</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
-            {subjects.map((subject, i) => (
+          <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            {howItWorks.map((item, i) => (
               <motion.div
-                key={subject.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-border bg-background hover:shadow-card transition-all cursor-pointer group"
+                transition={{ delay: i * 0.15 }}
+                className="text-center relative"
               >
-                <span className="text-3xl group-hover:scale-110 transition-transform">{subject.emoji}</span>
-                <span className="text-sm font-medium text-foreground">{subject.name}</span>
+                <div className="w-14 h-14 rounded-2xl gradient-hero flex items-center justify-center mx-auto mb-4 text-xl font-display font-bold text-primary-foreground">
+                  {item.step}
+                </div>
+                {i < howItWorks.length - 1 && (
+                  <div className="hidden md:block absolute top-7 left-[60%] w-[80%] h-0.5 bg-border" />
+                )}
+                <h3 className="font-display font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why StudyBuddy AI */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-display font-bold mb-4 text-foreground">
+              Why <span className="text-gradient">StudyBuddy AI</span>?
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {whyUs.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-center p-6 rounded-2xl border border-border bg-card hover:shadow-card transition-all"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-display font-semibold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -258,14 +264,22 @@ const Landing = () => {
                 Ready to Transform Your Learning?
               </h2>
               <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-                Join thousands of students who are already learning smarter with AI-powered personalized tutoring.
+                Join 100+ engineering students who are already learning smarter with AI-powered tools.
               </p>
-              <Link to="/chat">
-                <Button variant="accent" size="lg" className="text-base px-8 py-6">
-                  Start Learning Now
-                  <ArrowRight className="w-5 h-5 ml-1" />
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to={session ? "/chat" : "/signup"}>
+                  <Button variant="accent" size="lg" className="text-base px-8 py-6">
+                    Start Learning Now
+                    <ArrowRight className="w-5 h-5 ml-1" />
+                  </Button>
+                </Link>
+                <Link to={session ? "/placement" : "/signup"}>
+                  <Button variant="outline" size="lg" className="text-base px-8 py-6 bg-white/10 border-white/20 text-primary-foreground hover:bg-white/20">
+                    <Briefcase className="w-5 h-5 mr-1" />
+                    Placement Mode
+                  </Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>

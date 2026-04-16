@@ -1,16 +1,34 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LayoutDashboard, MessageSquare, Menu, X, ClipboardList } from "lucide-react";
+import {
+  BookOpen, LayoutDashboard, MessageSquare, Menu, X, ClipboardList,
+  FileText, Layers, Briefcase, Users, Calendar,
+} from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const navLinks = [
+const mainLinks = [
   { to: "/", label: "Home", icon: BookOpen },
   { to: "/chat", label: "AI Tutor", icon: MessageSquare },
-  { to: "/quiz", label: "Quiz", icon: ClipboardList },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+];
+
+const toolLinks = [
+  { to: "/notes", label: "Notes Generator", icon: FileText },
+  { to: "/flashcards", label: "Flashcards", icon: Layers },
+  { to: "/quiz", label: "Quiz", icon: ClipboardList },
+  { to: "/pdf-summary", label: "PDF Summary", icon: FileText },
+  { to: "/placement", label: "Placement Mode", icon: Briefcase },
+  { to: "/partners", label: "Study Partners", icon: Users },
+  { to: "/exam-countdown", label: "Exam Countdown", icon: Calendar },
 ];
 
 const Navbar = () => {
@@ -30,21 +48,38 @@ const Navbar = () => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => {
+          {mainLinks.map(link => {
             const Icon = link.icon;
             const active = location.pathname === link.to;
             return (
               <Link key={link.to} to={link.to}>
-                <Button
-                  variant="ghost"
-                  className={`gap-2 ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {link.label}
+                <Button variant="ghost" className={`gap-2 ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
+                  <Icon className="w-4 h-4" /> {link.label}
                 </Button>
               </Link>
             );
           })}
+
+          {/* Tools dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={`gap-2 ${toolLinks.some(l => location.pathname === l.to) ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
+                <ClipboardList className="w-4 h-4" /> Tools ▾
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              {toolLinks.map(link => {
+                const Icon = link.icon;
+                return (
+                  <DropdownMenuItem key={link.to} asChild>
+                    <Link to={link.to} className="flex items-center gap-2">
+                      <Icon className="w-4 h-4" /> {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -53,22 +88,14 @@ const Navbar = () => {
               <UserDropdown />
             ) : (
               <>
-                <Link to="/login">
-                  <Button variant="ghost">Log in</Button>
-                </Link>
-                <Link to="/signup">
-                  <Button variant="hero" size="sm">Get Started</Button>
-                </Link>
+                <Link to="/login"><Button variant="ghost">Log in</Button></Link>
+                <Link to="/signup"><Button variant="hero" size="sm">Get Started</Button></Link>
               </>
             )
           )}
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden text-foreground"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
+        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
@@ -82,23 +109,33 @@ const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background border-b border-border overflow-hidden"
           >
-            <div className="px-4 py-4 flex flex-col gap-2">
-              {navLinks.map((link) => {
+            <div className="px-4 py-4 flex flex-col gap-1 max-h-[70vh] overflow-y-auto">
+              {mainLinks.map(link => {
                 const Icon = link.icon;
                 return (
                   <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">
-                      <Icon className="w-4 h-4" />
-                      {link.label}
+                      <Icon className="w-4 h-4" /> {link.label}
                     </Button>
                   </Link>
                 );
               })}
+              <div className="border-t border-border my-2 pt-2">
+                <p className="text-xs text-muted-foreground px-3 mb-1 font-medium">TOOLS</p>
+                {toolLinks.map(link => {
+                  const Icon = link.icon;
+                  return (
+                    <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
+                        <Icon className="w-4 h-4" /> {link.label}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
               <div className="border-t border-border pt-2 mt-2 flex flex-col gap-2">
                 {session ? (
-                  <div className="px-2">
-                    <UserDropdown />
-                  </div>
+                  <div className="px-2"><UserDropdown /></div>
                 ) : (
                   <>
                     <Link to="/login" onClick={() => setMobileOpen(false)}>
