@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Flame, Trophy, Target, BookOpen, TrendingUp, Star, MessageSquare, ArrowRight, Award, Zap, ClipboardList,
+  Flame, Trophy, Target, BookOpen, TrendingUp, Star, MessageSquare, ArrowRight, Award, Zap, ClipboardList, Calendar, AlertTriangle, Briefcase, FileText, Layers,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -44,11 +44,41 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  const { data: examCountdowns } = useQuery({
+    queryKey: ["examCountdowns", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("exam_countdowns").select("*").eq("user_id", user!.id).eq("is_active", true).order("exam_date", { ascending: true }).limit(3);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const { data: notesCount } = useQuery({
+    queryKey: ["notesCount", user?.id],
+    queryFn: async () => {
+      const { count } = await supabase.from("generated_notes").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
+      return count || 0;
+    },
+    enabled: !!user,
+  });
+
+  const { data: flashcardsCount } = useQuery({
+    queryKey: ["flashcardsCount", user?.id],
+    queryFn: async () => {
+      const { count } = await supabase.from("flashcards").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
+      return count || 0;
+    },
+    enabled: !!user,
+  });
+
   const totalQuizzes = quizResults?.length || 0;
   const avgScore = totalQuizzes > 0 ? Math.round(quizResults!.reduce((s, q) => s + q.score, 0) / totalQuizzes) : 0;
   const hasPerfect = quizResults?.some((q) => q.score === 100) || false;
 
-  // Subject progress from quiz results
+  // Weak topics (scored below 60%)
+  const weakTopics = quizResults?.filter(q => q.score < 60).slice(0, 3).map(q => ({ topic: q.topic, subject: q.subject, score: q.score })) || [];
+
+  // Subject progress
   const subjectMap: Record<string, { total: number; correct: number; count: number }> = {};
   quizResults?.forEach((q) => {
     if (!subjectMap[q.subject]) subjectMap[q.subject] = { total: 0, correct: 0, count: 0 };
@@ -57,7 +87,7 @@ const Dashboard = () => {
     subjectMap[q.subject].count += 1;
   });
 
-  const subjectIcons: Record<string, string> = { mathematics: "📐", science: "🔬", english: "📝", coding: "💻", history: "📜", geography: "🌍" };
+  const subjectIcons: Record<string, string> = { mathematics: "📐", science: "🔬", english: "📝", coding: "💻", history: "📜", geography: "🌍", electronics: "⚡", dbms: "🗄️", os: "🖥️" };
   const subjectList = Object.entries(subjectMap).map(([name, data]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
     progress: Math.round((data.correct / data.total) * 100),
@@ -65,7 +95,6 @@ const Dashboard = () => {
     icon: subjectIcons[name] || "📚",
   }));
 
-  // Weekly chart data from recent quizzes
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const weeklyData = dayNames.map((day, i) => {
     const dayQuizzes = quizResults?.filter((q) => new Date(q.created_at).getDay() === i) || [];
@@ -73,7 +102,6 @@ const Dashboard = () => {
     return { day, score: avg };
   });
 
-  // Recent activity
   const recentActivity = (quizResults || []).slice(0, 5).map((q) => ({
     subject: q.subject,
     topic: q.topic,
@@ -81,7 +109,6 @@ const Dashboard = () => {
     time: getTimeAgo(new Date(q.created_at)),
   }));
 
-  // Badge evaluation
   const earnedBadges = badges.map((b) => {
     let earned = false;
     if ("minXp" in b) earned = (streak?.total_xp || 0) >= b.minXp!;
@@ -90,6 +117,8 @@ const Dashboard = () => {
     if ("needsPerfect" in b) earned = hasPerfect;
     return { ...b, earned };
   });
+
+  const getDaysRemaining = (date: string) => Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
   return (
     <div className="min-h-screen pt-20 pb-12 px-4">
@@ -128,8 +157,107 @@ const Dashboard = () => {
           })}
         </div>
 
+        {/* Today's Progress + Exam Countdown */}
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2">
+          {/* Today's Progress */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="lg:col-span-2">
+            <Card className="p-6 border-border">
+              <h2 className="font-display font-semibold text-lg mb-4 text-foreground">📊 Today's Progress</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-3 rounded-xl bg-secondary/50 text-center">
+                  <p className="text-2xl font-display font-bold text-foreground">{totalQuizzes}</p>
+                  <p className="text-xs text-muted-foreground">Quizzes Taken</p>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/50 text-center">
+                  <p className="text-2xl font-display font-bold text-foreground">{notesCount || 0}</p>
+                  <p className="text-xs text-muted-foreground">Notes Created</p>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/50 text-center">
+                  <p className="text-2xl font-display font-bold text-foreground">{flashcardsCount || 0}</p>
+                  <p className="text-xs text-muted-foreground">Flashcards</p>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/50 text-center">
+                  <p className="text-2xl font-display font-bold text-foreground">{weakTopics.length}</p>
+                  <p className="text-xs text-muted-foreground">⚠️ Weak Topics</p>
+                </div>
+              </div>
+              {weakTopics.length > 0 && (
+                <div className="mt-4 p-3 rounded-xl bg-accent/10 border border-accent/20">
+                  <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1"><AlertTriangle className="w-4 h-4 text-accent" /> Weak Topics Detected</p>
+                  <div className="flex flex-wrap gap-2">
+                    {weakTopics.map((t, i) => (
+                      <span key={i} className="px-3 py-1 rounded-full bg-accent/20 text-xs font-medium text-foreground">{t.topic} ({t.score}%)</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+          </motion.div>
+
+          {/* Exam Countdown */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <Card className="p-6 border-border">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display font-semibold text-lg text-foreground">📅 Exams</h2>
+                <Link to="/exam-countdown"><Button variant="ghost" size="sm" className="text-primary text-xs">View All</Button></Link>
+              </div>
+              {examCountdowns && examCountdowns.length > 0 ? (
+                <div className="space-y-3">
+                  {examCountdowns.map(exam => {
+                    const days = getDaysRemaining(exam.exam_date);
+                    return (
+                      <div key={exam.id} className="flex items-center gap-3 p-2 rounded-xl bg-secondary/50">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-primary-foreground ${days <= 7 ? "gradient-accent" : "gradient-hero"}`}>
+                          {days < 0 ? "✓" : days}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{exam.exam_name}</p>
+                          <p className="text-xs text-muted-foreground">{days < 0 ? "Done" : `${days} day${days !== 1 ? "s" : ""} left`}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <Calendar className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-xs text-muted-foreground">No upcoming exams</p>
+                  <Link to="/exam-countdown"><Button variant="ghost" size="sm" className="mt-1 text-xs text-primary">Add Exam</Button></Link>
+                </div>
+              )}
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Quick Actions */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mb-8">
+          <Card className="p-6 border-border">
+            <h2 className="font-display font-semibold text-lg mb-4 text-foreground">⚡ Quick Actions</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { to: "/notes", label: "Generate Notes", icon: FileText, color: "bg-primary/10 text-primary" },
+                { to: "/flashcards", label: "Flashcards", icon: Layers, color: "bg-accent/10 text-accent" },
+                { to: "/quiz", label: "Take Quiz", icon: ClipboardList, color: "bg-primary/10 text-primary" },
+                { to: "/placement", label: "Placement Prep", icon: Briefcase, color: "bg-accent/10 text-accent" },
+              ].map(action => {
+                const Icon = action.icon;
+                return (
+                  <Link key={action.to} to={action.to}>
+                    <div className={`p-4 rounded-xl border border-border hover:shadow-card transition-all text-center cursor-pointer`}>
+                      <div className={`w-10 h-10 rounded-xl ${action.color} flex items-center justify-center mx-auto mb-2`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground">{action.label}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </Card>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
             <Card className="p-6 border-border">
               <h2 className="font-display font-semibold text-lg mb-4 text-foreground">Weekly Performance</h2>
               <ResponsiveContainer width="100%" height={220}>
@@ -150,7 +278,7 @@ const Dashboard = () => {
             </Card>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
             <Card className="p-6 border-border">
               <h2 className="font-display font-semibold text-lg mb-4 text-foreground">Badges</h2>
               <div className="grid grid-cols-3 gap-3">
@@ -173,11 +301,7 @@ const Dashboard = () => {
           <Card className="p-6 border-border">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display font-semibold text-lg text-foreground">Subject Progress</h2>
-              <Link to="/quiz">
-                <Button variant="ghost" size="sm" className="text-primary">
-                  Take a Quiz <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
+              <Link to="/quiz"><Button variant="ghost" size="sm" className="text-primary">Take a Quiz <ArrowRight className="w-4 h-4 ml-1" /></Button></Link>
             </div>
             {subjectList.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-4">
@@ -199,9 +323,7 @@ const Dashboard = () => {
               <div className="text-center py-8">
                 <ClipboardList className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-muted-foreground">No quizzes taken yet. Start your first quiz!</p>
-                <Link to="/quiz">
-                  <Button variant="hero" size="sm" className="mt-3">Take a Quiz</Button>
-                </Link>
+                <Link to="/quiz"><Button variant="hero" size="sm" className="mt-3">Take a Quiz</Button></Link>
               </div>
             )}
           </Card>
@@ -241,18 +363,11 @@ const Dashboard = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mt-8">
           <div className="gradient-hero rounded-2xl p-8 text-center">
             <h3 className="font-display font-bold text-xl text-primary-foreground mb-2">Ready for your next challenge?</h3>
-            <p className="text-primary-foreground/80 text-sm mb-4">Take a quiz or chat with your AI tutor.</p>
-            <div className="flex gap-3 justify-center">
-              <Link to="/quiz">
-                <Button variant="accent" className="font-semibold">
-                  <ClipboardList className="w-4 h-4 mr-2" /> Take a Quiz
-                </Button>
-              </Link>
-              <Link to="/chat">
-                <Button variant="accent" className="font-semibold">
-                  <MessageSquare className="w-4 h-4 mr-2" /> Chat with Tutor
-                </Button>
-              </Link>
+            <p className="text-primary-foreground/80 text-sm mb-4">Take a quiz, generate notes, or prep for placements.</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <Link to="/quiz"><Button variant="accent" className="font-semibold"><ClipboardList className="w-4 h-4 mr-2" /> Take a Quiz</Button></Link>
+              <Link to="/chat"><Button variant="accent" className="font-semibold"><MessageSquare className="w-4 h-4 mr-2" /> Chat with Tutor</Button></Link>
+              <Link to="/placement"><Button variant="accent" className="font-semibold"><Briefcase className="w-4 h-4 mr-2" /> Placement Prep</Button></Link>
             </div>
           </div>
         </motion.div>
@@ -267,8 +382,7 @@ function getTimeAgo(date: Date): string {
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 export default Dashboard;
