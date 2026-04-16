@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 import {
   Briefcase, Code, CheckSquare, Loader2, Sparkles, Plus, Target, BookOpen, Trophy,
 } from "lucide-react";
