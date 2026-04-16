@@ -9,6 +9,12 @@ import Index from "./pages/Index.tsx";
 import Chat from "./pages/Chat.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Quiz from "./pages/Quiz.tsx";
+import NotesGenerator from "./pages/NotesGenerator.tsx";
+import Flashcards from "./pages/Flashcards.tsx";
+import PdfSummary from "./pages/PdfSummary.tsx";
+import Placement from "./pages/Placement.tsx";
+import Partners from "./pages/Partners.tsx";
+import ExamCountdown from "./pages/ExamCountdown.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
@@ -37,6 +43,12 @@ const App = () => (
             <Route path="/chat" element={<ProtectedRoute><WithNav><Chat /></WithNav></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><WithNav><Dashboard /></WithNav></ProtectedRoute>} />
             <Route path="/quiz" element={<ProtectedRoute><WithNav><Quiz /></WithNav></ProtectedRoute>} />
+            <Route path="/notes" element={<ProtectedRoute><WithNav><NotesGenerator /></WithNav></ProtectedRoute>} />
+            <Route path="/flashcards" element={<ProtectedRoute><WithNav><Flashcards /></WithNav></ProtectedRoute>} />
+            <Route path="/pdf-summary" element={<ProtectedRoute><WithNav><PdfSummary /></WithNav></ProtectedRoute>} />
+            <Route path="/placement" element={<ProtectedRoute><WithNav><Placement /></WithNav></ProtectedRoute>} />
+            <Route path="/partners" element={<ProtectedRoute><WithNav><Partners /></WithNav></ProtectedRoute>} />
+            <Route path="/exam-countdown" element={<ProtectedRoute><WithNav><ExamCountdown /></WithNav></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><WithNav><Profile /></WithNav></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
