@@ -17,8 +17,8 @@ import {
 
 const mainLinks = [
   { to: "/", label: "Home", icon: BookOpen },
-  { to: "/chat", label: "AI Tutor", icon: MessageSquare },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/tools", label: "Tools", icon: ClipboardList },
 ];
 
 const toolLinks = [
@@ -29,6 +29,7 @@ const toolLinks = [
   { to: "/placement", label: "Placement Mode", icon: Briefcase },
   { to: "/partners", label: "Study Partners", icon: Users },
   { to: "/exam-countdown", label: "Exam Countdown", icon: Calendar },
+  { to: "/chat", label: "AI Tutor", icon: MessageSquare },
 ];
 
 const Navbar = () => {
