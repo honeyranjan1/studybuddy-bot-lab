@@ -8,12 +8,12 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 const features = [
-  { icon: FileText, title: "Generate Notes", description: "AI creates structured, comprehensive study notes from any topic instantly.", emoji: "📘" },
-  { icon: Brain, title: "Practice Quiz", description: "AI-generated quizzes adapt in difficulty based on your performance.", emoji: "🧠" },
-  { icon: Users, title: "Find Study Partner", description: "Smart matching connects you with partners who share your goals.", emoji: "🤝" },
-  { icon: BarChart3, title: "Track Progress", description: "Visualize your growth with detailed dashboards and streak tracking.", emoji: "📊" },
-  { icon: FileText, title: "PDF Summary Tool", description: "Upload any PDF — get summaries, key points, and flashcards instantly.", emoji: "📄" },
-  { icon: Briefcase, title: "Placement Mode", description: "DSA tracker, interview prep, coding checklists — all in one place.", emoji: "💼" },
+  { icon: FileText, title: "Generate Notes", description: "AI creates structured, exam-ready study notes from any topic instantly.", color: "from-indigo-500 to-blue-500" },
+  { icon: Brain, title: "Practice Quiz", description: "AI-generated quizzes that adapt to your weak areas and track progress.", color: "from-emerald-500 to-teal-500" },
+  { icon: Users, title: "Find Study Partner", description: "Smart matching connects you with partners who share your goals & schedule.", color: "from-rose-500 to-pink-500" },
+  { icon: BarChart3, title: "Track Progress", description: "Visualize growth with detailed dashboards, streaks, and insights.", color: "from-purple-500 to-fuchsia-500" },
+  { icon: FileText, title: "PDF Summary Tool", description: "Upload any PDF — get summaries, key points, and flashcards in seconds.", color: "from-orange-500 to-amber-500" },
+  { icon: Briefcase, title: "Placement Mode", description: "DSA tracker, mock interviews, coding checklists — all in one place.", color: "from-sky-500 to-blue-600" },
 ];
 
 const howItWorks = [
@@ -157,7 +157,7 @@ const Landing = () => {
               AI-powered tools designed specifically for engineering students and placement preparation.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((feature, i) => {
               const Icon = feature.icon;
               return (
@@ -166,14 +166,11 @@ const Landing = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-card border border-border rounded-2xl p-6 hover:shadow-elevated transition-all duration-300 group"
+                  transition={{ delay: i * 0.08 }}
+                  className="bg-card border border-border rounded-2xl p-6 hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 group"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{feature.emoji}</span>
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Icon className="w-5 h-5 text-primary" />
-                    </div>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-soft group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
                   <h3 className="font-display font-semibold text-lg mb-2 text-foreground">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
