@@ -18,7 +18,6 @@ import {
 const mainLinks = [
   { to: "/", label: "Home", icon: BookOpen },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/tools", label: "Tools", icon: ClipboardList },
 ];
 
 const toolLinks = [
