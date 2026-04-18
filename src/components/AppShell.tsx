@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import UserDropdown from "./UserDropdown";
+import ThemeToggle from "./ThemeToggle";
 import { Input } from "@/components/ui/input";
 import { Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
                   className="pl-9 h-9 w-56 lg:w-72 bg-secondary/60 border-transparent focus-visible:bg-card focus-visible:border-border"
                 />
               </div>
+              <ThemeToggle />
               <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
                 <Bell className="w-4 h-4" />
               </Button>
