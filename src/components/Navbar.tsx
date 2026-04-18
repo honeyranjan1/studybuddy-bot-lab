@@ -8,6 +8,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
+import logo from "@/assets/studybuddy-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,8 +41,8 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-primary-foreground" />
+          <div className="w-9 h-9 rounded-lg bg-white shadow-soft flex items-center justify-center overflow-hidden">
+            <img src={logo} alt="StudyBuddy AI" className="w-full h-full object-contain" />
           </div>
           <span className="font-display font-bold text-lg text-foreground">StudyBuddy AI</span>
         </Link>

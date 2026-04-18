@@ -1,12 +1,13 @@
 import {
   LayoutDashboard, Wrench, Briefcase, Users, MessageSquare, User as UserIcon,
-  Settings, BookOpen, Calendar, Sparkles,
+  Calendar, Sparkles,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
+import logo from "@/assets/studybuddy-logo.png";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -37,8 +38,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border px-3 py-4">
         <NavLink to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl gradient-hero flex items-center justify-center shadow-soft shrink-0 group-hover:scale-105 transition-transform">
-            <BookOpen className="w-4.5 h-4.5 text-primary-foreground" />
+          <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-soft shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+            <img src={logo} alt="StudyBuddy" className="w-full h-full object-contain" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
