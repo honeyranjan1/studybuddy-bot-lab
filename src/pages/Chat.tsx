@@ -256,6 +256,7 @@ const Chat = () => {
 
     const baseMessages = messages[0]?.id === "welcome" ? [] : messages;
     const updatedMessages = [...baseMessages, userMsg];
+    const isFirstMessageInSession = baseMessages.length === 0;
     setMessages(updatedMessages);
     setInput("");
     setIsTyping(true);
