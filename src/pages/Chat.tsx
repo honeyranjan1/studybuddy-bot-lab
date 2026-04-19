@@ -319,6 +319,11 @@ const Chat = () => {
             await supabase.from("chat_sessions").update({ last_message_at: new Date().toISOString() }).eq("id", sessionId);
             queryClient.invalidateQueries({ queryKey: ["chatSessions", user.id] });
             if (ttsEnabled) speakText(assistantContent);
+
+            // Auto-generate a smart title from the first exchange
+            if (isFirstMessageInSession && text.trim()) {
+              generateTitle(sessionId!, text.trim(), assistantContent);
+            }
           }
         },
       });
