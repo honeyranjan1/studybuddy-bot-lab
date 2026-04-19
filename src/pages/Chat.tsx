@@ -78,16 +78,40 @@ const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Load chat sessions
+  // Load chat sessions (with optional content search)
   const { data: sessions = [] } = useQuery({
-    queryKey: ["chatSessions", user?.id],
+    queryKey: ["chatSessions", user?.id, searchQuery],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("chat_sessions")
-        .select("id, title, last_message_at")
-        .eq("user_id", user!.id)
-        .order("last_message_at", { ascending: false });
-      return (data || []) as Session[];
+      if (!user) return [];
+      const q = searchQuery.trim();
+      if (!q) {
+        const { data } = await supabase
+          .from("chat_sessions")
+          .select("id, title, last_message_at")
+          .eq("user_id", user.id)
+          .order("last_message_at", { ascending: false });
+        return (data || []) as Session[];
+      }
+      // Search by title OR by message content
+      const [{ data: byTitle }, { data: byContent }] = await Promise.all([
+        supabase.from("chat_sessions").select("id, title, last_message_at")
+          .eq("user_id", user.id).ilike("title", `%${q}%`),
+        supabase.from("chat_messages").select("session_id")
+          .eq("user_id", user.id).ilike("content", `%${q}%`).limit(200),
+      ]);
+      const idsFromContent = Array.from(new Set((byContent || []).map(m => m.session_id)));
+      let extra: Session[] = [];
+      if (idsFromContent.length) {
+        const { data } = await supabase.from("chat_sessions")
+          .select("id, title, last_message_at")
+          .in("id", idsFromContent);
+        extra = (data || []) as Session[];
+      }
+      const merged = new Map<string, Session>();
+      [...(byTitle || []), ...extra].forEach(s => merged.set(s.id, s as Session));
+      return Array.from(merged.values()).sort(
+        (a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+      );
     },
     enabled: !!user,
   });
