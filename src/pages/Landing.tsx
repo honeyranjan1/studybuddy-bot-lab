@@ -6,6 +6,7 @@ import {
   FileText, Briefcase, Users, Brain, Sparkles, CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/studybuddy-logo.png";
 
 const features = [
   { icon: FileText, title: "Generate Notes", description: "AI creates structured, exam-ready study notes from any topic instantly.", color: "from-indigo-500 to-blue-500" },
