@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Send, Brain, User, Sparkles, BookOpen, Calculator, FlaskConical, Code,
   Mic, MicOff, Volume2, VolumeX, ImagePlus, X, Plus, MessageSquare, Trash2,
-  PanelLeftClose, PanelLeftOpen, Pencil, Check,
+  PanelLeftClose, PanelLeftOpen, Pencil, Check, Search,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { streamChat } from "@/lib/streamChat";
@@ -73,6 +73,7 @@ const Chat = () => {
   const [historyOpen, setHistoryOpen] = useState(true);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
