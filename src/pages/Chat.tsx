@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Send, Brain, User, Sparkles, BookOpen, Calculator, FlaskConical, Code,
   Mic, MicOff, Volume2, VolumeX, ImagePlus, X, Plus, MessageSquare, Trash2,
-  PanelLeftClose, PanelLeftOpen, Pencil, Check,
+  PanelLeftClose, PanelLeftOpen, Pencil, Check, Search,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { streamChat } from "@/lib/streamChat";
@@ -73,20 +73,45 @@ const Chat = () => {
   const [historyOpen, setHistoryOpen] = useState(true);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Load chat sessions
+  // Load chat sessions (with optional content search)
   const { data: sessions = [] } = useQuery({
-    queryKey: ["chatSessions", user?.id],
+    queryKey: ["chatSessions", user?.id, searchQuery],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("chat_sessions")
-        .select("id, title, last_message_at")
-        .eq("user_id", user!.id)
-        .order("last_message_at", { ascending: false });
-      return (data || []) as Session[];
+      if (!user) return [];
+      const q = searchQuery.trim();
+      if (!q) {
+        const { data } = await supabase
+          .from("chat_sessions")
+          .select("id, title, last_message_at")
+          .eq("user_id", user.id)
+          .order("last_message_at", { ascending: false });
+        return (data || []) as Session[];
+      }
+      // Search by title OR by message content
+      const [{ data: byTitle }, { data: byContent }] = await Promise.all([
+        supabase.from("chat_sessions").select("id, title, last_message_at")
+          .eq("user_id", user.id).ilike("title", `%${q}%`),
+        supabase.from("chat_messages").select("session_id")
+          .eq("user_id", user.id).ilike("content", `%${q}%`).limit(200),
+      ]);
+      const idsFromContent = Array.from(new Set((byContent || []).map(m => m.session_id)));
+      let extra: Session[] = [];
+      if (idsFromContent.length) {
+        const { data } = await supabase.from("chat_sessions")
+          .select("id, title, last_message_at")
+          .in("id", idsFromContent);
+        extra = (data || []) as Session[];
+      }
+      const merged = new Map<string, Session>();
+      [...(byTitle || []), ...extra].forEach(s => merged.set(s.id, s as Session));
+      return Array.from(merged.values()).sort(
+        (a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+      );
     },
     enabled: !!user,
   });
@@ -203,6 +228,27 @@ const Chat = () => {
     setRenamingId(null);
   };
 
+  const generateTitle = async (sessionId: string, userMsg: string, assistantMsg: string) => {
+    try {
+      let title = "";
+      await streamChat({
+        messages: [{
+          role: "user",
+          content: `Generate a concise 4-6 word title (no quotes, no punctuation at the end, Title Case) for this conversation. Reply with ONLY the title.\n\nUser: ${userMsg.slice(0, 400)}\n\nAssistant: ${assistantMsg.slice(0, 400)}`,
+        }],
+        onDelta: (chunk) => { title += chunk; },
+        onDone: () => {},
+      });
+      const clean = title.replace(/["']/g, "").replace(/[.!?]+$/, "").trim().split("\n")[0].slice(0, 60);
+      if (clean && user) {
+        await supabase.from("chat_sessions").update({ title: clean }).eq("id", sessionId);
+        queryClient.invalidateQueries({ queryKey: ["chatSessions", user.id] });
+      }
+    } catch (e) {
+      console.error("Title generation failed:", e);
+    }
+  };
+
   const sendMessage = async (text: string) => {
     if ((!text.trim() && !pendingImage) || isTyping || !user) return;
 
@@ -231,6 +277,7 @@ const Chat = () => {
 
     const baseMessages = messages[0]?.id === "welcome" ? [] : messages;
     const updatedMessages = [...baseMessages, userMsg];
+    const isFirstMessageInSession = baseMessages.length === 0;
     setMessages(updatedMessages);
     setInput("");
     setIsTyping(true);
@@ -293,6 +340,11 @@ const Chat = () => {
             await supabase.from("chat_sessions").update({ last_message_at: new Date().toISOString() }).eq("id", sessionId);
             queryClient.invalidateQueries({ queryKey: ["chatSessions", user.id] });
             if (ttsEnabled) speakText(assistantContent);
+
+            // Auto-generate a smart title from the first exchange
+            if (isFirstMessageInSession && text.trim()) {
+              generateTitle(sessionId!, text.trim(), assistantContent);
+            }
           }
         },
       });
@@ -312,17 +364,39 @@ const Chat = () => {
         className={`${historyOpen ? "w-64" : "w-0"} transition-all duration-200 overflow-hidden border-r border-border bg-card/40 flex-shrink-0`}
       >
         <div className="w-64 h-full flex flex-col">
-          <div className="p-3 border-b border-border">
+          <div className="p-3 border-b border-border space-y-2">
             <Button onClick={startNewChat} variant="default" className="w-full justify-start gap-2 h-9">
               <Plus className="w-4 h-4" /> New chat
             </Button>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search chats..."
+                className="pl-8 h-8 text-xs bg-background"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-4">
             {sessions.length === 0 ? (
               <div className="text-center py-10 px-3">
                 <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-foreground/40" />
-                <p className="text-xs text-muted-foreground">No conversations yet</p>
-                <p className="text-[11px] text-muted-foreground/70 mt-1">Start chatting to save your history</p>
+                <p className="text-xs text-muted-foreground">
+                  {searchQuery ? "No matches found" : "No conversations yet"}
+                </p>
+                <p className="text-[11px] text-muted-foreground/70 mt-1">
+                  {searchQuery ? "Try a different search term" : "Start chatting to save your history"}
+                </p>
               </div>
             ) : (
               Object.entries(grouped).map(([label, items]) =>

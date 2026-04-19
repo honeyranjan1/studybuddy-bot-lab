@@ -6,6 +6,7 @@ import {
   FileText, Briefcase, Users, Brain, Sparkles, CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/studybuddy-logo.png";
 
 const features = [
   { icon: FileText, title: "Generate Notes", description: "AI creates structured, exam-ready study notes from any topic instantly.", color: "from-indigo-500 to-blue-500" },
@@ -286,8 +287,8 @@ const Landing = () => {
       <footer className="border-t border-border py-12 px-4">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-lg bg-white shadow-soft overflow-hidden flex items-center justify-center">
+              <img src={logo} alt="StudyBuddy AI" className="w-full h-full object-contain" />
             </div>
             <span className="font-display font-bold text-foreground">StudyBuddy AI</span>
           </div>
