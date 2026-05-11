@@ -339,6 +339,7 @@ Format in markdown with clear headings. Include a mix of conceptual, coding, and
             );
           })}
         </div>
+        </>
       )}
 
       {/* Interview Prep */}
