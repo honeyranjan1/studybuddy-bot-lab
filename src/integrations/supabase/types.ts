@@ -79,6 +79,63 @@ export type Database = {
         }
         Relationships: []
       }
+      dsa_problems: {
+        Row: {
+          constraints: string
+          created_at: string
+          difficulty: string
+          explanation: string
+          id: string
+          input_format: string
+          optimal_solution: string | null
+          output_format: string
+          sample_input: string
+          sample_output: string
+          starter_code: Json
+          statement: string
+          test_cases: Json
+          title: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          constraints: string
+          created_at?: string
+          difficulty: string
+          explanation: string
+          id?: string
+          input_format: string
+          optimal_solution?: string | null
+          output_format: string
+          sample_input: string
+          sample_output: string
+          starter_code?: Json
+          statement: string
+          test_cases?: Json
+          title: string
+          topic: string
+          user_id: string
+        }
+        Update: {
+          constraints?: string
+          created_at?: string
+          difficulty?: string
+          explanation?: string
+          id?: string
+          input_format?: string
+          optimal_solution?: string | null
+          output_format?: string
+          sample_input?: string
+          sample_output?: string
+          starter_code?: Json
+          statement?: string
+          test_cases?: Json
+          title?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       dsa_progress: {
         Row: {
           category: string
@@ -111,6 +168,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      dsa_submissions: {
+        Row: {
+          ai_feedback: string | null
+          code: string
+          created_at: string
+          difficulty: string
+          id: string
+          language: string
+          memory_kb: number | null
+          passed_count: number
+          problem_id: string
+          results: Json
+          runtime_ms: number | null
+          status: string
+          topic: string
+          total_count: number
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          code: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          language: string
+          memory_kb?: number | null
+          passed_count?: number
+          problem_id: string
+          results?: Json
+          runtime_ms?: number | null
+          status: string
+          topic: string
+          total_count?: number
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          code?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          language?: string
+          memory_kb?: number | null
+          passed_count?: number
+          problem_id?: string
+          results?: Json
+          runtime_ms?: number | null
+          status?: string
+          topic?: string
+          total_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dsa_submissions_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "dsa_problems"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       exam_countdowns: {
         Row: {

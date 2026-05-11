@@ -14,6 +14,7 @@ import NotesGenerator from "./pages/NotesGenerator.tsx";
 import Flashcards from "./pages/Flashcards.tsx";
 import PdfSummary from "./pages/PdfSummary.tsx";
 import Placement from "./pages/Placement.tsx";
+import DsaPractice from "./pages/DsaPractice.tsx";
 import Partners from "./pages/Partners.tsx";
 import ExamCountdown from "./pages/ExamCountdown.tsx";
 import Login from "./pages/Login.tsx";
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/flashcards" element={<Shell><Flashcards /></Shell>} />
             <Route path="/pdf-summary" element={<Shell><PdfSummary /></Shell>} />
             <Route path="/placement" element={<Shell><Placement /></Shell>} />
+            <Route path="/dsa-practice" element={<Shell><DsaPractice /></Shell>} />
             <Route path="/partners" element={<Shell><Partners /></Shell>} />
             <Route path="/exam-countdown" element={<Shell><ExamCountdown /></Shell>} />
             <Route path="/profile" element={<Shell><Profile /></Shell>} />
