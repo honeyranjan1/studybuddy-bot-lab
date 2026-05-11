@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -274,6 +275,21 @@ Format in markdown with clear headings. Include a mix of conceptual, coding, and
 
       {/* DSA Tracker */}
       {activeSection === "dsa" && (
+        <>
+        <Link to="/dsa-practice" className="block">
+          <Card className="p-5 border-border/60 hover:border-primary/40 hover:shadow-md transition-all bg-gradient-to-r from-primary/10 to-primary/5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-primary/15 text-primary"><Code className="w-5 h-5" /></div>
+                <div>
+                  <h3 className="font-display font-semibold text-foreground">DSA Practice — Code & Run</h3>
+                  <p className="text-xs text-muted-foreground">AI-generated problems, online editor (C++/Java/Python/JS), real test execution.</p>
+                </div>
+              </div>
+              <Button size="sm">Open</Button>
+            </div>
+          </Card>
+        </Link>
         <div className="grid md:grid-cols-2 gap-4">
           {dsaCategories.map((cat, i) => {
             const catCompleted = cat.topics.filter(t => isTopicCompleted(t)).length;
