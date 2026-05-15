@@ -5,31 +5,48 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PISTON = "https://emkc.org/api/v2/piston/execute";
+// Paiza.io free public API (no key required, use api_key=guest)
+const PAIZA_BASE = "https://api.paiza.io/runners";
 
-const LANG_MAP: Record<string, { language: string; version: string; filename: string }> = {
-  cpp: { language: "c++", version: "10.2.0", filename: "main.cpp" },
-  java: { language: "java", version: "15.0.2", filename: "Main.java" },
-  python: { language: "python", version: "3.10.0", filename: "main.py" },
-  javascript: { language: "javascript", version: "18.15.0", filename: "main.js" },
+const LANG_MAP: Record<string, string> = {
+  cpp: "cpp",
+  java: "java",
+  python: "python3",
+  javascript: "javascript",
 };
 
 async function runOnce(language: string, code: string, stdin: string) {
-  const cfg = LANG_MAP[language];
-  if (!cfg) throw new Error("Unsupported language");
-  const res = await fetch(PISTON, {
+  const lang = LANG_MAP[language];
+  if (!lang) throw new Error("Unsupported language");
+
+  const body = new URLSearchParams();
+  body.set("source_code", code);
+  body.set("language", lang);
+  body.set("input", stdin || "");
+  body.set("longpoll", "true");
+  body.set("longpoll_timeout", "15");
+  body.set("api_key", "guest");
+
+  const create = await fetch(`${PAIZA_BASE}/create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      language: cfg.language,
-      version: cfg.version,
-      files: [{ name: cfg.filename, content: code }],
-      stdin,
-      run_timeout: 5000,
-      compile_timeout: 10000,
-    }),
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
   });
-  return res.json();
+  const created = await create.json();
+  if (!created.id) throw new Error("Paiza create failed: " + JSON.stringify(created));
+
+  // Poll if not completed
+  let status = created.status;
+  let id = created.id;
+  for (let i = 0; i < 10 && status !== "completed"; i++) {
+    await new Promise((r) => setTimeout(r, 1000));
+    const s = await fetch(`${PAIZA_BASE}/get_status?id=${id}&api_key=guest`);
+    const sj = await s.json();
+    status = sj.status;
+  }
+
+  const det = await fetch(`${PAIZA_BASE}/get_details?id=${id}&api_key=guest`);
+  return det.json();
 }
 
 const norm = (s: string) => (s || "").replace(/\r\n/g, "\n").replace(/[ \t]+\n/g, "\n").replace(/\s+$/g, "");
@@ -51,24 +68,31 @@ serve(async (req) => {
     for (let i = 0; i < test_cases.length; i++) {
       const tc = test_cases[i];
       const out = await runOnce(language, code, tc.input);
-      if (out.compile && out.compile.code !== 0) {
-        compileError = out.compile.stderr || out.compile.output;
-        results.push({ index: i, hidden: tc.hidden, status: "compile_error", stderr: compileError, expected: tc.output, actual: "" });
+
+      // Build error
+      if (out.build_exit_code && out.build_exit_code !== "0" && out.build_result !== "success") {
+        compileError = out.build_stderr || out.build_stdout || "Compile error";
+        results.push({
+          index: i, hidden: tc.hidden, status: "compile_error",
+          stderr: compileError, expected: tc.output, actual: "",
+        });
         break;
       }
-      const run = out.run || {};
-      const stdout = norm(run.stdout || "");
+
+      const stdout = norm(out.stdout || "");
       const expected = norm(tc.output || "");
-      const stderr = run.stderr || "";
-      const runtime = run.runtime_ms ?? run.time ?? 0;
-      const mem = run.memory ?? 0;
-      totalRuntime += Number(runtime) || 0;
+      const stderr = out.stderr || "";
+      const runtime = parseFloat(out.time || "0") * 1000;
+      const mem = parseInt(out.memory || "0", 10) / 1024;
+      totalRuntime += runtime;
       if (mem > maxMem) maxMem = mem;
 
       let status = "passed";
-      if (run.signal === "SIGKILL" || (run.code && run.code !== 0 && stderr)) status = "runtime_error";
+      if (out.result === "timeout") status = "runtime_error";
+      else if (out.exit_code && out.exit_code !== "0" && stderr) status = "runtime_error";
       else if (stdout !== expected) status = "wrong_answer";
       if (status === "passed") passed++;
+
       results.push({
         index: i, hidden: tc.hidden, status,
         input: tc.hidden ? null : tc.input,
