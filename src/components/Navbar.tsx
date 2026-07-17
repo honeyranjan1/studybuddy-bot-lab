@@ -1,36 +1,22 @@
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import {
-  BookOpen, LayoutDashboard, MessageSquare, Menu, X, ClipboardList,
-  FileText, Layers, Briefcase, Users, Calendar,
-} from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
-import logo from "@/assets/studybuddy-logo.png";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-const mainLinks = [
-  { to: "/", label: "Home", icon: BookOpen },
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+const navLinks = [
+  { to: "/tools", label: "service" },
+  { to: "/dashboard", label: "patient resources" },
+  { to: "/", label: "about us" },
+  { to: "/chat", label: "education center" },
 ];
 
-const toolLinks = [
-  { to: "/notes", label: "Notes Generator", icon: FileText },
-  { to: "/flashcards", label: "Flashcards", icon: Layers },
-  { to: "/quiz", label: "Quiz", icon: ClipboardList },
-  { to: "/pdf-summary", label: "PDF Summary", icon: FileText },
-  { to: "/placement", label: "Placement Mode", icon: Briefcase },
-  { to: "/partners", label: "Study Partners", icon: Users },
-  { to: "/exam-countdown", label: "Exam Countdown", icon: Calendar },
-  { to: "/chat", label: "AI Tutor", icon: MessageSquare },
-];
+const CloverIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="#1a1a1a" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 2c2.8 0 5 2.2 5 5 0 1.3-.5 2.5-1.3 3.4C22 10.9 24 13 24 15.5c0 2.5-2 4.6-4.3 5.1.9.9 1.3 2.1 1.3 3.4 0 2.8-2.2 5-5 5s-5-2.2-5-5c0-1.3.5-2.5 1.3-3.4C10 20.1 8 18 8 15.5S10 10.9 12.3 10.4C11.5 9.5 11 8.3 11 7c0-2.8 2.2-5 5-5z" />
+    <circle cx="16" cy="15.5" r="2.2" fill="#EDEEF5" />
+  </svg>
+);
 
 const Navbar = () => {
   const location = useLocation();
@@ -38,112 +24,94 @@ const Navbar = () => {
   const { session, loading } = useAuth();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-      <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-white shadow-soft flex items-center justify-center overflow-hidden">
-            <img src={logo} alt="StudyBuddy AI" className="w-full h-full object-contain" />
-          </div>
-          <span className="font-display font-bold text-lg text-foreground">StudyBuddy AI</span>
+    <nav className="fixed top-0 left-0 w-full z-50 py-6 md:py-8 bg-gradient-to-b from-[#f1f1f1]/80 to-transparent backdrop-blur-[2px]">
+      <div className="grid grid-cols-12 max-w-7xl mx-auto px-6 items-center">
+        {/* Left: Logo */}
+        <Link to="/" className="col-span-6 md:col-span-3 flex items-center gap-2">
+          <CloverIcon className="w-7 h-7" />
+          <span className="font-display font-medium text-xl tracking-tight text-[#1a1a1a] lowercase">studybuddy</span>
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1">
-          {mainLinks.map(link => {
-            const Icon = link.icon;
-            const active = location.pathname === link.to;
-            return (
-              <Link key={link.to} to={link.to}>
-                <Button variant="ghost" className={`gap-2 ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
-                  <Icon className="w-4 h-4" /> {link.label}
-                </Button>
+        {/* Center: Desktop nav */}
+        <div className="hidden md:flex col-span-6 items-center justify-center gap-8">
+          {navLinks.map(link => (
+            <Link
+              key={link.label}
+              to={link.to}
+              className={`text-sm lowercase tracking-tight transition-colors ${
+                location.pathname === link.to ? "text-[#1a1a1a] font-medium" : "text-[#6a6a6a] hover:text-[#1a1a1a]"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Right */}
+        <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-4">
+          {!loading && session ? (
+            <div className="hidden md:block"><UserDropdown /></div>
+          ) : (
+            <>
+              <Link to="/login" className="hidden md:inline text-sm lowercase text-[#1a1a1a] hover:opacity-70 transition">find help</Link>
+              <Link
+                to={session ? "/dashboard" : "/signup"}
+                className="hidden md:inline-flex items-center gap-1.5 bg-[#1a1a1a] text-white text-sm rounded-full px-5 py-2.5 hover:bg-black transition-all hover:shadow-lg"
+              >
+                get started <span className="text-brand-green">→</span>
               </Link>
-            );
-          })}
-
-          {/* Tools dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className={`gap-2 ${toolLinks.some(l => location.pathname === l.to) ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
-                <ClipboardList className="w-4 h-4" /> Tools ▾
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              {toolLinks.map(link => {
-                const Icon = link.icon;
-                return (
-                  <DropdownMenuItem key={link.to} asChild>
-                    <Link to={link.to} className="flex items-center gap-2">
-                      <Icon className="w-4 h-4" /> {link.label}
-                    </Link>
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="hidden md:flex items-center gap-3">
-          {!loading && (
-            session ? (
-              <UserDropdown />
-            ) : (
-              <>
-                <Link to="/login"><Button variant="ghost">Log in</Button></Link>
-                <Link to="/signup"><Button variant="hero" size="sm">Get Started</Button></Link>
-              </>
-            )
+            </>
           )}
-        </div>
 
-        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+          {/* Animated hamburger */}
+          <button
+            aria-label="Menu"
+            className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-full border border-[#1a1a1a]/10 bg-white/60 backdrop-blur"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            <motion.span
+              animate={mobileOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
+              className="block w-4 h-px bg-[#1a1a1a]"
+            />
+            <motion.span
+              animate={mobileOpen ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
+              className="block w-4 h-px bg-[#1a1a1a]"
+            />
+          </button>
+        </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background border-b border-border overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden absolute top-full left-4 right-4 mt-3 rounded-3xl bg-white/90 backdrop-blur-xl border border-black/5 shadow-elevated overflow-hidden"
           >
-            <div className="px-4 py-4 flex flex-col gap-1 max-h-[70vh] overflow-y-auto">
-              {mainLinks.map(link => {
-                const Icon = link.icon;
-                return (
-                  <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start gap-2">
-                      <Icon className="w-4 h-4" /> {link.label}
-                    </Button>
-                  </Link>
-                );
-              })}
-              <div className="border-t border-border my-2 pt-2">
-                <p className="text-xs text-muted-foreground px-3 mb-1 font-medium">TOOLS</p>
-                {toolLinks.map(link => {
-                  const Icon = link.icon;
-                  return (
-                    <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
-                        <Icon className="w-4 h-4" /> {link.label}
-                      </Button>
-                    </Link>
-                  );
-                })}
-              </div>
-              <div className="border-t border-border pt-2 mt-2 flex flex-col gap-2">
+            <div className="p-6 flex flex-col gap-1">
+              {navLinks.map(l => (
+                <Link
+                  key={l.label}
+                  to={l.to}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-base lowercase text-[#1a1a1a] py-2 border-b border-black/5 last:border-0"
+                >
+                  {l.label}
+                </Link>
+              ))}
+              <div className="pt-4 flex flex-col gap-2">
                 {session ? (
-                  <div className="px-2"><UserDropdown /></div>
+                  <UserDropdown />
                 ) : (
                   <>
-                    <Link to="/login" onClick={() => setMobileOpen(false)}>
-                      <Button variant="ghost" className="w-full">Log in</Button>
-                    </Link>
-                    <Link to="/signup" onClick={() => setMobileOpen(false)}>
-                      <Button variant="hero" className="w-full">Get Started</Button>
+                    <Link to="/login" onClick={() => setMobileOpen(false)} className="text-sm text-[#6a6a6a]">find help</Link>
+                    <Link
+                      to="/signup"
+                      onClick={() => setMobileOpen(false)}
+                      className="bg-[#1a1a1a] text-white text-sm rounded-full px-5 py-3 text-center"
+                    >
+                      get started →
                     </Link>
                   </>
                 )}
