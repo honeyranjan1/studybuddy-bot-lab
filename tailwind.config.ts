@@ -16,8 +16,11 @@ export default {
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
         body: ["var(--font-body)", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       colors: {
+        "bg-base": "hsl(var(--bg-base))",
+        "brand-green": "hsl(var(--brand-green))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
