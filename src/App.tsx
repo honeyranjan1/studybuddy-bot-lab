@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppShell from "@/components/AppShell";
 import Index from "./pages/Index.tsx";
+import Measured from "./pages/Measured.tsx";
 import Chat from "./pages/Chat.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Quiz from "./pages/Quiz.tsx";
@@ -38,7 +39,8 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Measured />} />
+            <Route path="/home" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
