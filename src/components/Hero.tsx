@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { SearchCapsule, Pill, EdgeLabel } from "@/components/ui/pill";
 
+// Futuristic 3D-style classroom / holographic tech loop
 const HERO_VIDEO =
+  "https://videos.pexels.com/video-files/3129671/3129671-uhd_3840_2160_25fps.mp4";
+const HERO_VIDEO_FALLBACK =
   "https://videos.pexels.com/video-files/8471729/8471729-uhd_2560_1440_30fps.mp4";
 const HERO_POSTER =
-  "https://images.pexels.com/videos/8471729/free-video-8471729.jpg?auto=compress&cs=tinysrgb&w=1600";
+  "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1600";
 
 const Hero = () => {
   const [query, setQuery] = useState("");
