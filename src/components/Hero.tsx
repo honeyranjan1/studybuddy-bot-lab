@@ -20,13 +20,15 @@ const Hero = () => {
       <div className="absolute inset-0 w-full h-full">
         <video
           className="w-full h-full object-cover"
-          src={HERO_VIDEO}
           poster={HERO_POSTER}
           autoPlay
           muted
           loop
           playsInline
-        />
+        >
+          <source src={HERO_VIDEO} type="video/mp4" />
+          <source src={HERO_VIDEO_FALLBACK} type="video/mp4" />
+        </video>
         {/* Bottom fade into #EDEEF5 */}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent via-[#EDEEF5]/60 to-[#EDEEF5]" />
         {/* Top fade for nav legibility */}
