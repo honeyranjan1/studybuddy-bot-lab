@@ -56,50 +56,45 @@ const Hero = () => {
             <span className="text-[#8e8e8e]">study smarter.</span>
           </motion.h1>
 
-          {/* Search pill */}
-          <motion.form
+          {/* Search pill (reusable) */}
+          <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.15 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              window.location.href = query.trim()
-                ? `/chat?q=${encodeURIComponent(query)}`
-                : "/signup";
-            }}
-            className="mt-8 flex items-center gap-2 bg-white/70 backdrop-blur-xl border border-white/60 rounded-full pl-6 pr-2 py-2 shadow-soft max-w-xl"
+            transition={{ duration: 0.8, delay: 0.35 }}
+            className="mt-8"
           >
-            <input
+            <SearchCapsule
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onValueChange={setQuery}
               placeholder="what do you want to learn today?"
-              className="flex-1 bg-transparent outline-none text-sm md:text-base placeholder:text-[#8e8e8e] text-[#1a1a1a] py-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                window.location.href = query.trim()
+                  ? `/chat?q=${encodeURIComponent(query)}`
+                  : "/signup";
+              }}
             />
-            <button
-              type="submit"
-              aria-label="Start"
-              className="w-11 h-11 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center hover:bg-black transition"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </motion.form>
+          </motion.div>
         </div>
       </div>
 
       {/* Middle right: language pill */}
-      <div className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-20">
-        <button className="glass rounded-full px-4 py-2 text-xs text-[#1a1a1a] tracking-wide">
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-20"
+      >
+        <Pill variant="glass" className="px-4 py-2 text-xs">
           pl <span className="mx-1 text-[#8e8e8e]">—</span> <span className="font-medium">en</span>
-        </button>
-      </div>
+        </Pill>
+      </motion.div>
 
       {/* Bottom left */}
-      <div className="absolute bottom-6 left-6 z-20 text-xs text-[#1a1a1a]/70 tracking-wide">2026</div>
+      <div className="absolute bottom-6 left-6 z-20"><EdgeLabel>2026</EdgeLabel></div>
       {/* Bottom right */}
-      <div className="absolute bottom-6 right-6 z-20 text-xs text-[#1a1a1a]/70 tracking-wide lowercase">
-        <Link to="/tools" className="hover:text-[#1a1a1a] transition">study tools →</Link>
+      <div className="absolute bottom-6 right-6 z-20">
+        <Link to="/tools" className="text-xs text-[#1a1a1a]/70 hover:text-[#1a1a1a] transition lowercase tracking-wide">study tools →</Link>
       </div>
     </section>
   );
