@@ -358,239 +358,294 @@ const Chat = () => {
   const grouped = groupSessions(sessions);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] bg-bg-base font-sans">
       {/* Conversation history sidebar */}
       <aside
-        className={`${historyOpen ? "w-64" : "w-0"} transition-all duration-200 overflow-hidden border-r border-border bg-card/40 flex-shrink-0`}
+        className={`${historyOpen ? "w-72" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0`}
       >
-        <div className="w-64 h-full flex flex-col">
-          <div className="p-3 border-b border-border space-y-2">
-            <Button onClick={startNewChat} variant="default" className="w-full justify-start gap-2 h-9">
-              <Plus className="w-4 h-4" /> New chat
-            </Button>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search chats..."
-                className="pl-8 h-8 text-xs bg-background"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+        <div className="w-72 h-full flex flex-col p-3 gap-3">
+          {/* Sidebar card */}
+          <div className="flex-1 flex flex-col rounded-3xl bg-white/70 backdrop-blur-xl border border-black/5 shadow-soft overflow-hidden">
+            <div className="p-5 border-b border-black/5">
+              <p className="font-display text-xs uppercase tracking-[0.18em] text-[#8e8e8e] mb-3">conversations</p>
+              <button
+                onClick={startNewChat}
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#1a1a1a] text-white rounded-full px-4 py-2.5 text-sm font-medium hover:bg-black transition-colors"
+              >
+                <Plus className="w-4 h-4" /> new chat
+              </button>
+              <div className="relative mt-3">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8e8e8e]" />
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="search chats..."
+                  className="w-full pl-9 pr-8 h-9 text-xs rounded-full bg-bg-base border border-transparent focus:border-black/10 outline-none placeholder:text-[#8e8e8e]"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8e8e8e] hover:text-[#1a1a1a]"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+              {sessions.length === 0 ? (
+                <div className="text-center py-14 px-3">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-bg-base flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-[#8e8e8e]" />
+                  </div>
+                  <p className="text-xs text-[#4a4a4a] lowercase">
+                    {searchQuery ? "no matches found" : "no conversations yet"}
+                  </p>
+                  <p className="text-[11px] text-[#8e8e8e] mt-1">
+                    {searchQuery ? "try a different search" : "start chatting to save history"}
+                  </p>
+                </div>
+              ) : (
+                Object.entries(grouped).map(([label, items]) =>
+                  items.length > 0 && (
+                    <div key={label}>
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-[#8e8e8e] font-medium px-2 mb-2">{label}</p>
+                      <div className="space-y-1">
+                        {items.map(s => {
+                          const active = s.id === activeSessionId;
+                          const isRenaming = renamingId === s.id;
+                          return (
+                            <div
+                              key={s.id}
+                              onClick={() => !isRenaming && setActiveSessionId(s.id)}
+                              className={`group flex items-center gap-2 px-3 py-2 rounded-2xl cursor-pointer text-sm transition-all ${
+                                active
+                                  ? "bg-[#1a1a1a] text-white"
+                                  : "text-[#1a1a1a]/80 hover:bg-bg-base"
+                              }`}
+                            >
+                              {isRenaming ? (
+                                <form onSubmit={saveRename} className="flex-1 flex gap-1" onClick={e => e.stopPropagation()}>
+                                  <Input
+                                    value={renameValue}
+                                    onChange={e => setRenameValue(e.target.value)}
+                                    autoFocus
+                                    onBlur={saveRename}
+                                    className="h-7 text-xs px-2 rounded-full"
+                                  />
+                                  <button type="submit" className="text-brand-green"><Check className="w-3.5 h-3.5" /></button>
+                                </form>
+                              ) : (
+                                <>
+                                  <span className="flex-1 truncate lowercase">{s.title}</span>
+                                  <div className="opacity-0 group-hover:opacity-100 flex gap-0.5 shrink-0 transition-opacity">
+                                    <button
+                                      onClick={e => startRename(s, e)}
+                                      className={`p-1 rounded-full ${active ? "hover:bg-white/10" : "hover:bg-white"}`}
+                                      title="Rename"
+                                    >
+                                      <Pencil className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={e => deleteSession(s.id, e)}
+                                      className={`p-1 rounded-full ${active ? "hover:bg-white/10" : "hover:bg-white text-[#8e8e8e] hover:text-destructive"}`}
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )
+                )
               )}
             </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-4">
-            {sessions.length === 0 ? (
-              <div className="text-center py-10 px-3">
-                <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-foreground/40" />
-                <p className="text-xs text-muted-foreground">
-                  {searchQuery ? "No matches found" : "No conversations yet"}
-                </p>
-                <p className="text-[11px] text-muted-foreground/70 mt-1">
-                  {searchQuery ? "Try a different search term" : "Start chatting to save your history"}
-                </p>
-              </div>
-            ) : (
-              Object.entries(grouped).map(([label, items]) =>
-                items.length > 0 && (
-                  <div key={label}>
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-2 mb-1">{label}</p>
-                    <div className="space-y-0.5">
-                      {items.map(s => {
-                        const active = s.id === activeSessionId;
-                        const isRenaming = renamingId === s.id;
-                        return (
-                          <div
-                            key={s.id}
-                            onClick={() => !isRenaming && setActiveSessionId(s.id)}
-                            className={`group flex items-center gap-1 px-2 py-1.5 rounded-lg cursor-pointer text-sm transition-colors ${
-                              active ? "bg-primary/10 text-primary" : "text-foreground/80 hover:bg-muted"
-                            }`}
-                          >
-                            <MessageSquare className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                            {isRenaming ? (
-                              <form onSubmit={saveRename} className="flex-1 flex gap-1" onClick={e => e.stopPropagation()}>
-                                <Input
-                                  value={renameValue}
-                                  onChange={e => setRenameValue(e.target.value)}
-                                  autoFocus
-                                  onBlur={saveRename}
-                                  className="h-6 text-xs px-1.5"
-                                />
-                                <button type="submit" className="text-primary"><Check className="w-3.5 h-3.5" /></button>
-                              </form>
-                            ) : (
-                              <>
-                                <span className="flex-1 truncate">{s.title}</span>
-                                <div className="opacity-0 group-hover:opacity-100 flex gap-0.5 shrink-0 transition-opacity">
-                                  <button
-                                    onClick={e => startRename(s, e)}
-                                    className="p-1 rounded hover:bg-background/80 text-muted-foreground hover:text-foreground"
-                                    title="Rename"
-                                  >
-                                    <Pencil className="w-3 h-3" />
-                                  </button>
-                                  <button
-                                    onClick={e => deleteSession(s.id, e)}
-                                    className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                                    title="Delete"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )
-              )
-            )}
           </div>
         </div>
       </aside>
 
       {/* Main chat area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <div className="px-3 md:px-5 py-3 border-b border-border bg-card/30 backdrop-blur flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 shrink-0"
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {/* Floating top bar */}
+        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-2 pointer-events-none">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <button
               onClick={() => setHistoryOpen(o => !o)}
+              className="h-10 w-10 rounded-full bg-white/70 backdrop-blur-xl border border-black/5 shadow-soft flex items-center justify-center text-[#1a1a1a] hover:bg-white transition"
               title={historyOpen ? "Hide history" : "Show history"}
             >
               {historyOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
-            </Button>
-            <div className="w-8 h-8 rounded-lg bg-white shadow-soft overflow-hidden shrink-0">
-              <img src={logo} alt="StudyBuddy" className="w-full h-full object-contain" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-display font-semibold text-sm text-foreground truncate">StudyBuddy AI Tutor</h1>
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                Online • Voice & image enabled
-              </p>
+            </button>
+            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/70 backdrop-blur-xl border border-black/5 shadow-soft rounded-full pl-1.5 pr-4 py-1.5">
+              <div className="w-7 h-7 rounded-full bg-white overflow-hidden shrink-0">
+                <img src={logo} alt="StudyBuddy" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-display text-sm text-[#1a1a1a] lowercase">studybuddy tutor</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
             </div>
           </div>
-          <Button
-            variant={ttsEnabled ? "default" : "outline"}
-            size="sm"
+          <button
             onClick={() => {
               setTtsEnabled(!ttsEnabled);
               if (ttsEnabled) window.speechSynthesis.cancel();
               toast.success(ttsEnabled ? "Voice responses off" : "Voice responses on");
             }}
-            className="h-8"
+            className={`pointer-events-auto inline-flex items-center gap-2 rounded-full px-4 h-10 text-xs font-medium transition ${
+              ttsEnabled
+                ? "bg-brand-green text-[#1a1a1a] shadow-glow"
+                : "bg-white/70 backdrop-blur-xl border border-black/5 text-[#1a1a1a] hover:bg-white"
+            }`}
           >
             {ttsEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline ml-1 text-xs">{ttsEnabled ? "On" : "Off"}</span>
-          </Button>
+            <span className="lowercase">voice {ttsEnabled ? "on" : "off"}</span>
+          </button>
         </div>
 
-        {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
-            <AnimatePresence initial={false}>
-              {messages.map(msg => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`flex items-start gap-2.5 max-w-[85%] ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden ${
-                      msg.role === "assistant" ? "bg-white shadow-soft" : "bg-primary text-primary-foreground"
-                    }`}>
-                      {msg.role === "assistant"
-                        ? <img src={logo} alt="AI" className="w-full h-full object-contain" />
-                        : <User className="w-4 h-4" />
-                      }
-                    </div>
-                    <div className={`rounded-2xl px-4 py-2.5 ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-tr-sm"
-                        : "bg-card border border-border text-card-foreground rounded-tl-sm"
-                    }`}>
-                      {msg.imageUrl && (
-                        <img src={msg.imageUrl} alt="Uploaded" className="max-w-full max-h-56 rounded-lg mb-2 object-contain" />
-                      )}
-                      {msg.role === "assistant" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-headings:font-display">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
-                        </div>
-                      ) : (
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+        {/* Messages / Editorial hero */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto pt-24">
+          {messages.length === 1 && messages[0].id === "welcome" ? (
+            /* Editorial empty-state hero */
+            <div className="max-w-4xl mx-auto px-6 md:px-10 pt-12 pb-8">
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-xs uppercase tracking-[0.2em] text-[#8e8e8e] mb-6"
+              >
+                ai tutor · always on
+              </motion.p>
+              <motion.h1
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.05 }}
+                className="font-display font-medium tracking-tight text-[42px] md:text-[68px] leading-[1.02] text-[#1a1a1a]"
+              >
+                hey there,
+                <br />
+                <span className="text-[#8e8e8e]">what shall we</span>
+                <br />
+                <span className="text-[#8e8e8e]">learn</span>{" "}
+                <span className="inline-flex items-center justify-center align-middle w-[52px] md:w-[72px] h-[36px] md:h-[48px] border-[2px] border-[#1a1a1a] rounded-full mx-1">
+                  <span className="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[#1a1a1a]" />
+                </span>{" "}
+                <span className="text-[#1a1a1a]">today?</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.25 }}
+                className="mt-6 text-[#4a4a4a] max-w-xl leading-relaxed"
+              >
+                Ask a question, drop an image of a problem, or speak your mind. StudyBuddy explains, quizzes, and coaches — one step at a time.
+              </motion.p>
 
-            {isTyping && messages[messages.length - 1]?.role !== "assistant" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white shadow-soft overflow-hidden shrink-0">
-                  <img src={logo} alt="AI" className="w-full h-full object-contain" />
-                </div>
-                <div className="bg-card border border-border rounded-2xl rounded-tl-sm px-4 py-3">
-                  <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" />
-                    <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {messages.length === 1 && messages[0].id === "welcome" && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <p className="text-xs text-muted-foreground mb-2 px-1">Quick starts</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {quickTopics.map(t => {
+              {/* Quick starts as editorial pills */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+                className="mt-10"
+              >
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[#8e8e8e] mb-4">try one of these</p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {quickTopics.map((t, i) => {
                     const Icon = t.icon;
                     return (
-                      <button
+                      <motion.button
                         key={t.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 + i * 0.06 }}
                         onClick={() => sendMessage(t.prompt)}
-                        className="flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-sm text-left transition-all"
+                        className="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-black/5 hover:border-[#1a1a1a]/20 hover:shadow-soft text-left transition-all"
                       >
-                        <div className="p-1.5 rounded-lg bg-primary/10 text-primary"><Icon className="w-4 h-4" /></div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{t.label}</p>
-                          <p className="text-[11px] text-muted-foreground line-clamp-1">{t.prompt}</p>
+                        <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] text-white group-hover:bg-brand-green group-hover:text-[#1a1a1a] flex items-center justify-center transition-colors shrink-0">
+                          <Icon className="w-4 h-4" />
                         </div>
-                      </button>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-[#1a1a1a] lowercase">{t.label}</p>
+                          <p className="text-xs text-[#6a6a6a] truncate">{t.prompt}</p>
+                        </div>
+                      </motion.button>
                     );
                   })}
                 </div>
               </motion.div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-6">
+              <AnimatePresence initial={false}>
+                {messages.map(msg => (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div className={`flex items-start gap-3 max-w-[88%] ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${
+                        msg.role === "assistant" ? "bg-white shadow-soft" : "bg-[#1a1a1a] text-white"
+                      }`}>
+                        {msg.role === "assistant"
+                          ? <img src={logo} alt="AI" className="w-full h-full object-contain" />
+                          : <User className="w-4 h-4" />
+                        }
+                      </div>
+                      <div className={`rounded-3xl px-5 py-3 ${
+                        msg.role === "user"
+                          ? "bg-[#1a1a1a] text-white rounded-tr-md"
+                          : "bg-white border border-black/5 text-[#1a1a1a] rounded-tl-md shadow-soft"
+                      }`}>
+                        {msg.imageUrl && (
+                          <img src={msg.imageUrl} alt="Uploaded" className="max-w-full max-h-56 rounded-xl mb-2 object-contain" />
+                        )}
+                        {msg.role === "assistant" ? (
+                          <div className="prose prose-sm max-w-none prose-p:my-2 prose-headings:font-display prose-headings:text-[#1a1a1a]">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {isTyping && messages[messages.length - 1]?.role !== "assistant" && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-white shadow-soft overflow-hidden shrink-0">
+                    <img src={logo} alt="AI" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="bg-white border border-black/5 rounded-3xl rounded-tl-md px-5 py-3.5 shadow-soft">
+                    <div className="flex gap-1">
+                      <span className="w-1.5 h-1.5 bg-[#1a1a1a]/40 rounded-full animate-bounce" />
+                      <span className="w-1.5 h-1.5 bg-[#1a1a1a]/40 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-1.5 h-1.5 bg-[#1a1a1a]/40 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Pending image */}
         {pendingImagePreview && (
-          <div className="px-4 py-2 border-t border-border bg-card/30">
+          <div className="px-4 py-2">
             <div className="max-w-3xl mx-auto">
               <div className="relative inline-block">
-                <img src={pendingImagePreview} alt="Preview" className="h-20 rounded-lg object-contain border border-border" />
+                <img src={pendingImagePreview} alt="Preview" className="h-20 rounded-2xl object-contain border border-black/5 shadow-soft" />
                 <button
                   onClick={() => { setPendingImage(null); setPendingImagePreview(null); }}
-                  className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center shadow-soft"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -599,31 +654,52 @@ const Chat = () => {
           </div>
         )}
 
-        {/* Composer */}
-        <div className="border-t border-border bg-card/30 backdrop-blur px-3 md:px-4 py-3">
+        {/* Editorial composer capsule */}
+        <div className="px-4 md:px-6 pb-6 pt-2">
           <div className="max-w-3xl mx-auto">
-            <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center gap-2 bg-white border border-black/5 rounded-full shadow-soft pl-2 pr-2 py-2 focus-within:border-[#1a1a1a]/20 transition-colors"
+            >
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleImageUpload} />
-              <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isTyping} className="rounded-xl shrink-0 h-10 w-10" title="Upload image">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isTyping}
+                className="h-9 w-9 rounded-full text-[#4a4a4a] hover:bg-bg-base flex items-center justify-center transition shrink-0 disabled:opacity-40"
+                title="Upload image"
+              >
                 <ImagePlus className="w-4 h-4" />
-              </Button>
-              <Button type="button" variant={isListening ? "destructive" : "outline"} size="icon" onClick={toggleListening} disabled={isTyping} className="rounded-xl shrink-0 h-10 w-10" title={isListening ? "Stop" : "Voice input"}>
+              </button>
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={isTyping}
+                className={`h-9 w-9 rounded-full flex items-center justify-center transition shrink-0 disabled:opacity-40 ${
+                  isListening ? "bg-destructive text-white" : "text-[#4a4a4a] hover:bg-bg-base"
+                }`}
+                title={isListening ? "Stop" : "Voice input"}
+              >
                 {isListening ? <MicOff className="w-4 h-4 animate-pulse" /> : <Mic className="w-4 h-4" />}
-              </Button>
-              <Input
+              </button>
+              <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                placeholder={isListening ? "Listening..." : "Message StudyBuddy AI..."}
-                className="flex-1 rounded-xl bg-background h-10"
+                placeholder={isListening ? "listening..." : "message studybuddy..."}
+                className="flex-1 bg-transparent outline-none text-sm placeholder:text-[#8e8e8e] px-2 h-9"
                 disabled={isTyping}
               />
-              <Button type="submit" variant="hero" size="icon" disabled={(!input.trim() && !pendingImage) || isTyping} className="rounded-xl shrink-0 h-10 w-10">
+              <button
+                type="submit"
+                disabled={(!input.trim() && !pendingImage) || isTyping}
+                className="h-9 w-9 rounded-full bg-[#1a1a1a] text-white hover:bg-black flex items-center justify-center transition shrink-0 disabled:opacity-40"
+              >
                 <Send className="w-4 h-4" />
-              </Button>
+              </button>
             </form>
-            <p className="text-[11px] text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
+            <p className="text-[11px] text-[#8e8e8e] text-center mt-3 flex items-center justify-center gap-1.5 lowercase">
               <Sparkles className="w-3 h-3" />
-              Conversations are saved automatically • Voice & image supported
+              conversations saved automatically · voice & image supported
             </p>
           </div>
         </div>
@@ -633,3 +709,4 @@ const Chat = () => {
 };
 
 export default Chat;
+
