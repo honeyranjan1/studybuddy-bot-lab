@@ -29,11 +29,14 @@ const Hero = () => {
           <source src={HERO_VIDEO} type="video/mp4" />
           <source src={HERO_VIDEO_FALLBACK} type="video/mp4" />
         </video>
+        {/* Scrim for text legibility */}
+        <div className="absolute inset-0 bg-[#EDEEF5]/55" />
         {/* Bottom fade into #EDEEF5 */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent via-[#EDEEF5]/60 to-[#EDEEF5]" />
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-b from-transparent via-[#EDEEF5]/80 to-[#EDEEF5]" />
         {/* Top fade for nav legibility */}
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#EDEEF5]/60 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#EDEEF5]/80 to-transparent" />
       </div>
+
 
       {/* Content */}
       <div className="relative z-10 h-full grid grid-cols-12 max-w-7xl mx-auto px-6 items-end pb-24 md:pb-32">
