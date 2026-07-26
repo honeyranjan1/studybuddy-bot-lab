@@ -54,9 +54,6 @@ const Measured = () => {
               <span className="text-[#8e8e8e]">turns study data</span>
               <br />
               <span className="text-[#8e8e8e]">into daily clarity</span>{" "}
-              <span className="inline-flex items-center justify-center align-middle w-[24px] md:w-[52px] lg:w-[72px] h-[16px] md:h-[36px] lg:h-[48px] border-[2px] border-[#1a1a1a] rounded-full mx-1">
-                <span className="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[#1a1a1a]" />
-              </span>{" "}
               <br />
               <span className="text-[#8e8e8e]">for engineering minds.</span>
             </motion.h1>
