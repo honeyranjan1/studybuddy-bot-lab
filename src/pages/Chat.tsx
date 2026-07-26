@@ -532,9 +532,6 @@ const Chat = () => {
                 <span className="text-[#8e8e8e]">what shall we</span>
                 <br />
                 <span className="text-[#8e8e8e]">learn</span>{" "}
-                <span className="inline-flex items-center justify-center align-middle w-[52px] md:w-[72px] h-[36px] md:h-[48px] border-[2px] border-[#1a1a1a] rounded-full mx-1">
-                  <span className="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[#1a1a1a]" />
-                </span>{" "}
                 <span className="text-[#1a1a1a]">today?</span>
               </motion.h1>
               <motion.p
