@@ -154,10 +154,7 @@ const Dashboard = () => {
         <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-[#1a1a1a]">
           welcome back,
           <br />
-          <span className="text-[#8e8e8e]">{displayName}.</span>{" "}
-          <span className="inline-flex items-center justify-center w-[42px] md:w-[62px] h-[24px] md:h-[36px] border-2 border-[#1a1a1a] rounded-full align-middle mx-1">
-            <span className="w-2 h-2 rounded-full bg-[#1a1a1a]" />
-          </span>
+          <span className="text-[#8e8e8e]">{displayName}.</span>
         </h1>
         <p className="mt-4 text-[#8e8e8e] text-base md:text-lg max-w-xl">
           your learning command center — resume where you left off, or start something new.

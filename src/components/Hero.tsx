@@ -52,11 +52,7 @@ const Hero = () => {
             <br />
             <span className="text-[#8e8e8e]">quizzes, and AI tutoring</span>
             <br />
-            <span className="text-[#8e8e8e]">to help you</span>{" "}
-            <span className="inline-flex items-center justify-center align-middle w-[24px] md:w-[52px] lg:w-[72px] h-[16px] md:h-[36px] lg:h-[48px] border-[2px] border-[#1a1a1a] rounded-full mx-1">
-              <span className="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[#1a1a1a]" />
-            </span>{" "}
-            <span className="text-[#8e8e8e]">study smarter.</span>
+            <span className="text-[#8e8e8e]">to help you study smarter.</span>
           </motion.h1>
 
           {/* Search pill (reusable) */}
