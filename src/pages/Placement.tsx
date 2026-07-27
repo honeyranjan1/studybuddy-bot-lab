@@ -285,6 +285,20 @@ const Placement = () => {
       {/* Interview */}
       {activeSection === "interview" && (
         <motion.div {...fade(0.25)} className="space-y-6">
+          <Link to="/mock-interview" className="block">
+            <div className="glass rounded-3xl p-6 hover:bg-white/80 hover:-translate-y-0.5 transition-all group">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-[#1a1a1a] text-white"><Brain className="w-5 h-5" /></div>
+                  <div>
+                    <h3 className="font-display text-xl text-[#1a1a1a] lowercase">ai mock interview — live scoring</h3>
+                    <p className="text-sm text-[#8e8e8e] mt-0.5">full mock rounds with real-time feedback and a scoring rubric.</p>
+                  </div>
+                </div>
+                <Pill variant="solid" className="hidden sm:inline-flex">start <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" /></Pill>
+              </div>
+            </div>
+          </Link>
           <div className="glass rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2.5 rounded-xl bg-[#1a1a1a] text-white"><Brain className="w-5 h-5" /></div>
