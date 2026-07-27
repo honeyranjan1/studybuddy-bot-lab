@@ -16,6 +16,7 @@ import Flashcards from "./pages/Flashcards.tsx";
 import PdfSummary from "./pages/PdfSummary.tsx";
 import Placement from "./pages/Placement.tsx";
 import DsaPractice from "./pages/DsaPractice.tsx";
+import MockInterview from "./pages/MockInterview.tsx";
 import Partners from "./pages/Partners.tsx";
 import ExamCountdown from "./pages/ExamCountdown.tsx";
 import Login from "./pages/Login.tsx";
