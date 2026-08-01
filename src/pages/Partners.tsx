@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Pill, SearchCapsule } from "@/components/ui/pill";
+import PartnerChat from "@/components/PartnerChat";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,6 +39,8 @@ const Partners = () => {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterSemester, setFilterSemester] = useState("all");
   const [connected, setConnected] = useState<Set<string>>(new Set());
+  const [chatWith, setChatWith] = useState<{ userId: string; label: string } | null>(null);
+
 
   // Form state
   const [semester, setSemester] = useState("");
@@ -372,9 +376,14 @@ const Partners = () => {
                     >
                       {isConnected ? <><CheckCircle2 className="w-4 h-4" /> request sent</> : <><UserPlus className="w-4 h-4" /> connect</>}
                     </Pill>
-                    <Pill variant="glass" className="px-3" onClick={() => toast.info("Messaging coming soon")}>
+                    <Pill
+                      variant="glass"
+                      className="px-3"
+                      onClick={() => setChatWith({ userId: partner.user_id, label: `student #${initials}` })}
+                    >
                       <MessageSquare className="w-4 h-4" />
                     </Pill>
+
                   </div>
                 </div>
               </motion.div>
@@ -395,7 +404,17 @@ const Partners = () => {
           )}
         </motion.div>
       )}
+
+      {chatWith && (
+        <PartnerChat
+          open={!!chatWith}
+          partnerUserId={chatWith.userId}
+          partnerLabel={chatWith.label}
+          onClose={() => setChatWith(null)}
+        />
+      )}
     </div>
+
   );
 };
 
