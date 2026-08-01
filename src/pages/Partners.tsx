@@ -402,7 +402,17 @@ const Partners = () => {
           )}
         </motion.div>
       )}
+
+      {chatWith && (
+        <PartnerChat
+          open={!!chatWith}
+          partnerUserId={chatWith.userId}
+          partnerLabel={chatWith.label}
+          onClose={() => setChatWith(null)}
+        />
+      )}
     </div>
+
   );
 };
 
