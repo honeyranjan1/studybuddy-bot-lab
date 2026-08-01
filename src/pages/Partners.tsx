@@ -37,6 +37,8 @@ const Partners = () => {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterSemester, setFilterSemester] = useState("all");
   const [connected, setConnected] = useState<Set<string>>(new Set());
+  const [chatWith, setChatWith] = useState<{ userId: string; label: string } | null>(null);
+
 
   // Form state
   const [semester, setSemester] = useState("");
