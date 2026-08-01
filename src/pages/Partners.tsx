@@ -1,43 +1,33 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Pill, SearchCapsule } from "@/components/ui/pill";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Users, UserPlus, Search, MessageSquare, Target, Clock, Sparkles,
-  GraduationCap, CheckCircle2, Filter, X,
+  Users, UserPlus, MessageSquare, Target, Clock, Sparkles,
+  GraduationCap, CheckCircle2, X,
 } from "lucide-react";
 
 const subjectOptions = ["DSA", "DBMS", "OS", "CN", "OOP", "Web Dev", "ML/AI", "Mathematics", "System Design"];
 const semesterOptions = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
-
-const avatarPalette = [
-  "from-blue-500 to-indigo-600",
-  "from-purple-500 to-pink-500",
-  "from-emerald-500 to-teal-500",
-  "from-amber-500 to-orange-500",
-  "from-rose-500 to-red-500",
-  "from-cyan-500 to-blue-500",
-];
 
 const initialsFor = (id: string) => {
   const hash = id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   return letters[hash % 26] + letters[(hash * 7) % 26];
 };
-const colorFor = (id: string) => {
-  const hash = id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  return avatarPalette[hash % avatarPalette.length];
-};
+
+const fade = (delay = 0) => ({
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const },
+});
 
 const Partners = () => {
   const { user } = useAuth();
@@ -140,285 +130,270 @@ const Partners = () => {
   });
 
   const hasActiveFilters = searchQuery || filterSubject !== "all" || filterSemester !== "all";
+  const clearFilters = () => { setSearchQuery(""); setFilterSubject("all"); setFilterSemester("all"); };
 
   const handleConnect = (id: string) => {
     setConnected(prev => new Set(prev).add(id));
     toast.success("Connection request sent!");
   };
 
-  const matchTone = (s: number) =>
-    s >= 80 ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-    : s >= 50 ? "bg-primary/15 text-primary"
-    : "bg-muted text-muted-foreground";
+  const strongMatches = scored.filter(p => p.matchScore >= 80).length;
+
+  const stats = [
+    { label: "students listed", value: scored.length },
+    { label: "strong matches", value: strongMatches },
+    { label: "your subjects", value: myProfile?.subjects?.length ?? 0 },
+    { label: "requests sent", value: connected.size },
+  ];
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2">
-            <Users className="w-3.5 h-3.5" /> Study Partner Matching
-          </div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">Find your study squad</h1>
-          <p className="text-sm text-muted-foreground mt-1">Match with engineering students who share your subjects, semester, and goals.</p>
+    <div className="container mx-auto max-w-7xl px-4 md:px-8 py-8 md:py-12">
+      {/* Editorial hero */}
+      <motion.div {...fade(0)} className="mb-10 md:mb-14">
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className="text-xs uppercase tracking-[0.2em] text-[#8e8e8e]">study partners</span>
+          <span className="h-px flex-1 bg-[#1a1a1a]/10" />
+          <span className="text-xs text-[#8e8e8e] lowercase">matching</span>
         </div>
-        {myProfile ? (
-          <Button variant="outline" onClick={openForm}>
-            <UserPlus className="w-4 h-4" /> Edit My Profile
-          </Button>
-        ) : (
-          <Button variant="hero" onClick={openForm}>
-            <Sparkles className="w-4 h-4" /> Create My Profile
-          </Button>
-        )}
+        <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-[#1a1a1a]">
+          find your
+          <br />
+          <span className="text-[#8e8e8e]">study squad.</span>
+        </h1>
+        <p className="mt-4 text-[#8e8e8e] text-base md:text-lg max-w-xl">
+          match with engineering students who share your subjects, semester and goals.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-2">
+          {myProfile ? (
+            <Pill variant="solid" onClick={openForm}><UserPlus className="w-4 h-4" /> edit my profile</Pill>
+          ) : (
+            <Pill variant="solid" onClick={openForm}><Sparkles className="w-4 h-4" /> create my profile</Pill>
+          )}
+          {hasActiveFilters && <Pill variant="glass" onClick={clearFilters}><X className="w-4 h-4" /> clear filters</Pill>}
+        </div>
       </motion.div>
 
-      {/* No profile prompt */}
+      {/* Stats row */}
+      <motion.div {...fade(0.1)} className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1a1a1a]/10 rounded-3xl overflow-hidden mb-10 border border-[#1a1a1a]/10">
+        {stats.map((s) => (
+          <div key={s.label} className="bg-bg-base p-6 md:p-8 hover:bg-white/60 transition-colors">
+            <p className="font-display text-4xl md:text-5xl tracking-tight text-[#1a1a1a] leading-none">{s.value}</p>
+            <p className="text-xs text-[#8e8e8e] mt-3 lowercase tracking-wide">{s.label}</p>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Profile prompt */}
       {!myProfile && !showForm && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="p-6 border-border/60 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <UserPlus className="w-6 h-6" />
-              </div>
-              <div className="flex-1 min-w-[200px]">
-                <h3 className="font-display font-semibold text-foreground">Create your partner profile</h3>
-                <p className="text-sm text-muted-foreground">Add your subjects and goals so others can find you — and get smarter match suggestions.</p>
-              </div>
-              <Button variant="hero" onClick={openForm}>Get started</Button>
-            </div>
-          </Card>
+        <motion.div {...fade(0.15)} className="glass rounded-3xl p-6 md:p-8 mb-10 flex items-center gap-5 flex-wrap">
+          <div className="w-12 h-12 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center">
+            <UserPlus className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-[220px]">
+            <h3 className="font-display text-xl text-[#1a1a1a] lowercase">create your partner profile</h3>
+            <p className="text-sm text-[#8e8e8e] mt-1">add your subjects and goals so others can find you — and get smarter match suggestions.</p>
+          </div>
+          <Pill variant="solid" onClick={openForm}>get started →</Pill>
         </motion.div>
       )}
 
-      {/* Profile Form */}
+      {/* Profile form */}
       {showForm && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="p-6 border-border/60">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-lg text-foreground">Your study profile</h3>
-              <Button variant="ghost" size="icon" onClick={() => setShowForm(false)}><X className="w-4 h-4" /></Button>
+        <motion.div {...fade(0)} className="glass rounded-3xl p-6 md:p-8 mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-display text-2xl text-[#1a1a1a] lowercase">your study profile</h3>
+            <button onClick={() => setShowForm(false)} className="w-9 h-9 rounded-full bg-white/70 hover:bg-white flex items-center justify-center text-[#6a6a6a]">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="grid md:grid-cols-2 gap-5">
+            <div>
+              <Label className="text-xs uppercase tracking-[0.15em] text-[#8e8e8e] mb-2 block">semester</Label>
+              <Select value={semester} onValueChange={setSemester}>
+                <SelectTrigger className="rounded-full bg-white/70 border-black/5 h-11"><SelectValue placeholder="select semester" /></SelectTrigger>
+                <SelectContent>
+                  {semesterOptions.map(s => <SelectItem key={s} value={s}>{s} Semester</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Semester</Label>
-                <Select value={semester} onValueChange={setSemester}>
-                  <SelectTrigger><SelectValue placeholder="Select semester" /></SelectTrigger>
-                  <SelectContent>
-                    {semesterOptions.map(s => <SelectItem key={s} value={s}>{s} Semester</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Availability</Label>
-                <Input value={availability} onChange={e => setAvailability(e.target.value)} placeholder="e.g., Weekday evenings" />
-              </div>
-              <div className="md:col-span-2">
-                <Label className="text-sm font-medium mb-2 block">Subjects (select multiple)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {subjectOptions.map(sub => {
-                    const active = selectedSubjects.includes(sub);
-                    return (
-                      <button
-                        key={sub}
-                        type="button"
-                        onClick={() => toggleSubject(sub)}
-                        className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
-                          active
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
-                        }`}
-                      >
-                        {sub}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="md:col-span-2">
-                <Label className="text-sm font-medium mb-2 block">Goals</Label>
-                <Input value={goals} onChange={e => setGoals(e.target.value)} placeholder="e.g., DSA placement preparation" />
-              </div>
-              <div className="md:col-span-2">
-                <Label className="text-sm font-medium mb-2 block">About you</Label>
-                <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Brief intro about yourself and what you're looking for..." rows={3} />
+            <div>
+              <Label className="text-xs uppercase tracking-[0.15em] text-[#8e8e8e] mb-2 block">availability</Label>
+              <Input value={availability} onChange={e => setAvailability(e.target.value)} placeholder="e.g., weekday evenings" className="rounded-full bg-white/70 border-black/5 h-11 px-5" />
+            </div>
+            <div className="md:col-span-2">
+              <Label className="text-xs uppercase tracking-[0.15em] text-[#8e8e8e] mb-2 block">subjects</Label>
+              <div className="flex flex-wrap gap-2">
+                {subjectOptions.map(sub => {
+                  const active = selectedSubjects.includes(sub);
+                  return (
+                    <button
+                      key={sub}
+                      type="button"
+                      onClick={() => toggleSubject(sub)}
+                      className={`text-xs px-4 py-2 rounded-full border transition-all lowercase ${
+                        active
+                          ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                          : "bg-white/60 border-black/10 text-[#6a6a6a] hover:bg-white hover:text-[#1a1a1a]"
+                      }`}
+                    >
+                      {sub}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-            <div className="flex gap-3 mt-5">
-              <Button variant="hero" onClick={saveProfile} disabled={saving} className="flex-1 sm:flex-none">
-                {saving ? "Saving..." : "Save profile"}
-              </Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+            <div className="md:col-span-2">
+              <Label className="text-xs uppercase tracking-[0.15em] text-[#8e8e8e] mb-2 block">goals</Label>
+              <Input value={goals} onChange={e => setGoals(e.target.value)} placeholder="e.g., dsa placement preparation" className="rounded-full bg-white/70 border-black/5 h-11 px-5" />
             </div>
-          </Card>
+            <div className="md:col-span-2">
+              <Label className="text-xs uppercase tracking-[0.15em] text-[#8e8e8e] mb-2 block">about you</Label>
+              <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="brief intro about yourself and what you're looking for…" rows={3} className="rounded-2xl bg-white/70 border-black/5" />
+            </div>
+          </div>
+          <div className="flex gap-2 mt-6">
+            <Pill variant="solid" onClick={saveProfile} disabled={saving}>{saving ? "saving…" : "save profile"}</Pill>
+            <Pill variant="glass" onClick={() => setShowForm(false)}>cancel</Pill>
+          </div>
         </motion.div>
       )}
 
-      {/* Filters */}
-      <Card className="p-3 border-border/60">
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by goals, bio, or subject..."
-              className="pl-10 border-transparent bg-secondary/60 focus-visible:bg-card focus-visible:border-border"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Select value={filterSubject} onValueChange={setFilterSubject}>
-              <SelectTrigger className="w-full lg:w-44">
-                <Filter className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-                <SelectValue placeholder="Subject" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All subjects</SelectItem>
-                {subjectOptions.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filterSemester} onValueChange={setFilterSemester}>
-              <SelectTrigger className="w-full lg:w-44">
-                <GraduationCap className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-                <SelectValue placeholder="Semester" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All semesters</SelectItem>
-                {semesterOptions.map(s => <SelectItem key={s} value={s}>{s} Semester</SelectItem>)}
-              </SelectContent>
-            </Select>
-            {hasActiveFilters && (
-              <Button variant="ghost" size="icon" onClick={() => { setSearchQuery(""); setFilterSubject("all"); setFilterSemester("all"); }} title="Clear filters">
-                <X className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
+      {/* Search + filters */}
+      <motion.div {...fade(0.2)} className="flex flex-col lg:flex-row gap-3 mb-8">
+        <SearchCapsule
+          className="flex-1 max-w-none"
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          placeholder="search by goals, bio or subject…"
+          onSubmit={(e) => e.preventDefault()}
+        />
+        <div className="flex gap-2">
+          <Select value={filterSubject} onValueChange={setFilterSubject}>
+            <SelectTrigger className="w-full lg:w-44 rounded-full bg-white/70 border-white/60 backdrop-blur-xl h-12 px-5 lowercase">
+              <SelectValue placeholder="subject" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">all subjects</SelectItem>
+              {subjectOptions.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterSemester} onValueChange={setFilterSemester}>
+            <SelectTrigger className="w-full lg:w-44 rounded-full bg-white/70 border-white/60 backdrop-blur-xl h-12 px-5 lowercase">
+              <SelectValue placeholder="semester" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">all semesters</SelectItem>
+              {semesterOptions.map(s => <SelectItem key={s} value={s}>{s} Semester</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
-      </Card>
+      </motion.div>
 
-      {/* Results count */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">{filteredPartners.length}</span> {filteredPartners.length === 1 ? "partner" : "partners"} found
-        </p>
-        {myProfile && <span className="text-xs text-muted-foreground hidden sm:inline">Sorted by match score</span>}
-      </div>
+      <motion.div {...fade(0.25)} className="flex items-baseline gap-3 mb-5">
+        <h2 className="font-display text-2xl text-[#1a1a1a] lowercase">
+          {filteredPartners.length} {filteredPartners.length === 1 ? "partner" : "partners"}
+        </h2>
+        <span className="h-px flex-1 bg-[#1a1a1a]/10" />
+        {myProfile && <span className="text-xs text-[#8e8e8e] lowercase">sorted by match score</span>}
+      </motion.div>
 
-      {/* Partner Cards */}
+      {/* Partner cards */}
       {filteredPartners.length > 0 ? (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredPartners.map((partner, i) => {
             const isConnected = connected.has(partner.id);
             const initials = initialsFor(partner.user_id);
-            const gradient = colorFor(partner.user_id);
-            const availabilityOnline = partner.availability?.toLowerCase().includes("evening") || partner.availability?.toLowerCase().includes("weekend");
+            const online = partner.availability?.toLowerCase().includes("evening") || partner.availability?.toLowerCase().includes("weekend");
 
             return (
-              <motion.div
-                key={partner.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <Card className="p-5 h-full border-border/60 hover:border-primary/40 hover:shadow-md transition-all flex flex-col">
-                  {/* Header */}
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="relative shrink-0">
-                      <Avatar className={`w-12 h-12 bg-gradient-to-br ${gradient}`}>
-                        <AvatarFallback className="bg-transparent text-white font-semibold text-sm">{initials}</AvatarFallback>
-                      </Avatar>
-                      {availabilityOnline && (
-                        <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-card" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-display font-semibold text-foreground truncate">Student #{initials}</h3>
-                        {partner.semester && (
-                          <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
-                            <GraduationCap className="w-3 h-3 mr-0.5" />{partner.semester} Sem
-                          </Badge>
-                        )}
+              <motion.div key={partner.id} {...fade(0.3 + i * 0.04)}>
+                <div className="glass rounded-3xl p-6 h-full flex flex-col hover:bg-white/80 hover:-translate-y-0.5 transition-all">
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center font-display text-sm">
+                        {initials}
                       </div>
-                      {partner.bio && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{partner.bio}</p>}
+                      {online && <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-brand-green border-2 border-white" />}
                     </div>
-                    <div className={`shrink-0 px-2 py-1 rounded-lg text-xs font-semibold ${matchTone(partner.matchScore)}`}>
-                      {partner.matchScore}%
+                    <div className="text-right">
+                      <p className="font-display text-3xl leading-none text-[#1a1a1a]">{partner.matchScore}%</p>
+                      <p className="text-[10px] text-[#8e8e8e] mt-1 lowercase tracking-wide">match</p>
                     </div>
                   </div>
 
-                  {/* Subjects */}
-                  <div className="flex flex-wrap gap-1 mb-3">
+                  <h3 className="font-display text-xl text-[#1a1a1a] lowercase">student #{initials}</h3>
+                  <p className="text-xs text-[#8e8e8e] mt-1 lowercase">
+                    {partner.semester ? `${partner.semester} semester` : "semester not set"}
+                  </p>
+                  {partner.bio && <p className="text-sm text-[#6a6a6a] mt-3 line-clamp-2">{partner.bio}</p>}
+
+                  <div className="flex flex-wrap gap-1.5 mt-4">
                     {partner.subjects?.slice(0, 5).map((sub: string) => {
-                      const isShared = myProfile?.subjects?.includes(sub);
+                      const shared = myProfile?.subjects?.includes(sub);
                       return (
-                        <Badge
+                        <span
                           key={sub}
-                          variant="outline"
-                          className={`text-[10px] h-5 px-1.5 ${isShared ? "border-primary/40 bg-primary/10 text-primary" : ""}`}
+                          className={`text-[11px] px-3 py-1 rounded-full border ${
+                            shared ? "bg-[#1a1a1a] text-white border-[#1a1a1a]" : "bg-white/60 border-black/10 text-[#6a6a6a]"
+                          }`}
                         >
                           {sub}
-                        </Badge>
+                        </span>
                       );
                     })}
                     {(partner.subjects?.length || 0) > 5 && (
-                      <Badge variant="outline" className="text-[10px] h-5 px-1.5">+{partner.subjects!.length - 5}</Badge>
+                      <span className="text-[11px] px-3 py-1 rounded-full border border-black/10 bg-white/60 text-[#6a6a6a]">
+                        +{partner.subjects!.length - 5}
+                      </span>
                     )}
                   </div>
 
-                  {/* Meta */}
-                  <div className="space-y-1.5 mb-4 text-xs text-muted-foreground flex-1">
+                  <div className="space-y-2 mt-5 mb-6 text-xs text-[#8e8e8e] flex-1">
                     {partner.goals && (
-                      <div className="flex items-start gap-1.5">
-                        <Target className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary/70" />
+                      <div className="flex items-start gap-2">
+                        <Target className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                         <span className="line-clamp-1">{partner.goals}</span>
                       </div>
                     )}
                     {partner.availability && (
-                      <div className="flex items-start gap-1.5">
-                        <Clock className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary/70" />
+                      <div className="flex items-start gap-2">
+                        <Clock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                         <span className="line-clamp-1">{partner.availability}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-3 border-t border-border/60">
-                    <Button
-                      variant={isConnected ? "outline" : "hero"}
-                      size="sm"
-                      className="flex-1"
+                  <div className="flex gap-2 pt-4 border-t border-[#1a1a1a]/10">
+                    <Pill
+                      variant={isConnected ? "outline" : "solid"}
+                      className="flex-1 justify-center"
                       onClick={() => !isConnected && handleConnect(partner.id)}
                       disabled={isConnected}
                     >
-                      {isConnected ? (
-                        <><CheckCircle2 className="w-4 h-4" /> Request sent</>
-                      ) : (
-                        <><UserPlus className="w-4 h-4" /> Connect</>
-                      )}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => toast.info("Messaging coming soon")}>
+                      {isConnected ? <><CheckCircle2 className="w-4 h-4" /> request sent</> : <><UserPlus className="w-4 h-4" /> connect</>}
+                    </Pill>
+                    <Pill variant="glass" className="px-3" onClick={() => toast.info("Messaging coming soon")}>
                       <MessageSquare className="w-4 h-4" />
-                    </Button>
+                    </Pill>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             );
           })}
         </div>
       ) : (
-        <Card className="p-12 border-dashed border-border/60 text-center">
-          <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="font-display font-medium text-foreground">No study partners found</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {hasActiveFilters ? "Try adjusting your filters." : "Be the first to create a profile!"}
+        <motion.div {...fade(0.3)} className="rounded-3xl border border-dashed border-[#1a1a1a]/15 p-16 text-center">
+          <Users className="w-10 h-10 text-[#1a1a1a]/15 mx-auto mb-4" />
+          <p className="font-display text-2xl text-[#1a1a1a] lowercase">no study partners found</p>
+          <p className="text-sm text-[#8e8e8e] mt-2">
+            {hasActiveFilters ? "try adjusting your filters." : "be the first to create a profile!"}
           </p>
           {hasActiveFilters && (
-            <Button variant="outline" size="sm" className="mt-4" onClick={() => { setSearchQuery(""); setFilterSubject("all"); setFilterSemester("all"); }}>
-              Clear filters
-            </Button>
+            <div className="mt-6 flex justify-center">
+              <Pill variant="glass" onClick={clearFilters}>clear filters</Pill>
+            </div>
           )}
-        </Card>
+        </motion.div>
       )}
     </div>
   );
