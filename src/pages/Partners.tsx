@@ -372,9 +372,14 @@ const Partners = () => {
                     >
                       {isConnected ? <><CheckCircle2 className="w-4 h-4" /> request sent</> : <><UserPlus className="w-4 h-4" /> connect</>}
                     </Pill>
-                    <Pill variant="glass" className="px-3" onClick={() => toast.info("Messaging coming soon")}>
+                    <Pill
+                      variant="glass"
+                      className="px-3"
+                      onClick={() => setChatWith({ userId: partner.user_id, label: `student #${initials}` })}
+                    >
                       <MessageSquare className="w-4 h-4" />
                     </Pill>
+
                   </div>
                 </div>
               </motion.div>
