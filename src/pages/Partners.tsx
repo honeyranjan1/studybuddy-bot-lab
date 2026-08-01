@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Pill, SearchCapsule } from "@/components/ui/pill";
+import PartnerChat from "@/components/PartnerChat";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
