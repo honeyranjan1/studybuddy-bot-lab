@@ -49,6 +49,8 @@
 
     --brand-green: 74 100% 50%;
     --bg-base: 232 24% 95%;
+    --app-bg: url('./assets/bg-light.jpg');
+    --app-bg-dark: url('./assets/bg-dark.jpg');
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 25%;
