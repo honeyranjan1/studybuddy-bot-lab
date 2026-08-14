@@ -1,47 +1,72 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, Layers, ClipboardList, FileSearch, MessageSquare, ArrowRight, Briefcase } from "lucide-react";
+import { FileText, Layers, ClipboardList, FileSearch, MessageSquare, ArrowUpRight, Briefcase, Sparkles } from "lucide-react";
 
 const tools = [
-  { to: "/notes", title: "Notes Generator", description: "Type a topic — get structured, exam-ready notes in seconds.", icon: FileText, color: "from-indigo-500 to-blue-500" },
-  { to: "/flashcards", title: "Flashcards Generator", description: "Auto-generate flashcards for active recall and spaced repetition.", icon: Layers, color: "from-purple-500 to-pink-500" },
-  { to: "/quiz", title: "Quiz Generator", description: "Multiple-choice quizzes that adapt to your weak areas.", icon: ClipboardList, color: "from-emerald-500 to-teal-500" },
-  { to: "/pdf-summary", title: "PDF Summary Tool", description: "Upload a PDF — get summary, key points, and flashcards.", icon: FileSearch, color: "from-orange-500 to-amber-500" },
-  { to: "/chat", title: "Doubt Solver Chatbot", description: "Ask anything — voice, text, or image. Get instant answers.", icon: MessageSquare, color: "from-rose-500 to-red-500" },
-  { to: "/placement", title: "Placement Prep", description: "DSA tracker, interview questions, and coding checklists.", icon: Briefcase, color: "from-sky-500 to-blue-600" },
+  { to: "/notes", title: "Notes Generator", description: "Type a topic — get structured, exam-ready notes in seconds.", icon: FileText, tag: "write", span: "lg:col-span-3" },
+  { to: "/flashcards", title: "Flashcards", description: "Auto-generate cards for active recall and spaced repetition.", icon: Layers, tag: "recall", span: "lg:col-span-3" },
+  { to: "/quiz", title: "Quiz Generator", description: "Adaptive multiple-choice quizzes that target your weak areas.", icon: ClipboardList, tag: "test", span: "lg:col-span-2" },
+  { to: "/pdf-summary", title: "PDF Summary", description: "Upload a PDF — get a summary, key points and flashcards.", icon: FileSearch, tag: "digest", span: "lg:col-span-2" },
+  { to: "/chat", title: "Doubt Solver", description: "Ask anything — voice, text or image. Instant answers.", icon: MessageSquare, tag: "tutor", span: "lg:col-span-2" },
+  { to: "/placement", title: "Placement Prep", description: "DSA tracker, interview questions and coding checklists.", icon: Briefcase, tag: "career", span: "lg:col-span-6" },
 ];
 
 const Tools = () => (
-  <div className="container mx-auto max-w-6xl px-4 md:px-6 py-8">
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-      <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">AI Study Tools</h1>
-      <p className="text-muted-foreground mt-1">Pick a tool and get started — everything is powered by AI.</p>
-    </motion.div>
+  <div className="container mx-auto max-w-6xl px-4 md:px-6 py-10">
+    <motion.header
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-10 md:mb-14"
+    >
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 backdrop-blur px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <Sparkles className="w-3 h-3 text-accent" /> ai toolkit
+      </div>
+      <h1 className="mt-5 font-display font-semibold tracking-tight text-foreground text-[13vw] leading-[0.85] sm:text-6xl md:text-7xl lowercase">
+        study tools
+      </h1>
+      <p className="mt-4 max-w-md text-sm md:text-base text-muted-foreground leading-relaxed">
+        Six focused tools. Pick one and start — everything runs on AI.
+      </p>
+    </motion.header>
 
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
       {tools.map((tool, i) => {
         const Icon = tool.icon;
         return (
           <motion.div
             key={tool.to}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
+            transition={{ delay: 0.05 * i, duration: 0.45 }}
+            className={tool.span}
           >
-            <Card className="group p-6 border-border hover:border-primary/40 hover:shadow-elevated transition-all duration-300 h-full flex flex-col">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-4 shadow-soft group-hover:scale-110 transition-transform`}>
-                <Icon className="w-5 h-5 text-white" />
+            <Link
+              to={tool.to}
+              className="group relative flex h-full min-h-[190px] flex-col justify-between overflow-hidden rounded-[1.5rem] border border-border bg-card/70 backdrop-blur-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-elevated"
+            >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-accent/20 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              />
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-foreground/[0.06] text-foreground transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{tool.tag}</span>
               </div>
-              <h3 className="font-display font-semibold text-base text-foreground mb-1.5">{tool.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed flex-1">{tool.description}</p>
-              <Link to={tool.to} className="mt-4">
-                <Button variant="ghost" size="sm" className="group/btn -ml-2 text-primary hover:text-primary hover:bg-primary/10">
-                  Start <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover/btn:translate-x-0.5 transition-transform" />
-                </Button>
-              </Link>
-            </Card>
+
+              <div className="relative">
+                <h2 className="font-display text-xl md:text-2xl font-medium tracking-tight text-foreground lowercase">
+                  {tool.title}
+                </h2>
+                <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed max-w-sm">{tool.description}</p>
+                <div className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  start
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
+              </div>
+            </Link>
           </motion.div>
         );
       })}
