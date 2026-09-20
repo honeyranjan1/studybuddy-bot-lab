@@ -45,7 +45,7 @@ const DeskExperience = () => {
       <Canvas
         shadows
         dpr={dpr}
-        camera={{ position: [0, 2.1, 4.6], fov: 50 }}
+        camera={{ position: [0, 3.05, 5.9], fov: 48 }}
         onPointerMissed={() => setFocus(null)}
       >
         <Suspense fallback={null}>

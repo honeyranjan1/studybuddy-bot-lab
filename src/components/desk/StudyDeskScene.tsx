@@ -65,7 +65,7 @@ function Hotspot({
     >
       {children}
       <Text
-        position={[0, 0.34, 0]}
+        position={item.labelOffset ?? [0, 0.34, 0]}
         fontSize={0.085}
         color={isActive ? "#ffffff" : "#8b8b90"}
         anchorX="center"
@@ -271,8 +271,8 @@ function CameraRig({ focus, reducedMotion }: { focus: string | null; reducedMoti
     } else {
       const px = reducedMotion ? 0 : pointer.x;
       const py = reducedMotion ? 0 : pointer.y;
-      desired.set(px * 1.1, 2.1 + py * 0.35, 4.6);
-      target.lerp(new THREE.Vector3(px * 0.3, 1.0, 0), 1 - Math.exp(-3 * dt));
+      desired.set(px * 1.1, 3.05 + py * 0.35, 5.9);
+      target.lerp(new THREE.Vector3(px * 0.3, 1.15, 0), 1 - Math.exp(-3 * dt));
     }
     camera.position.lerp(desired, 1 - Math.exp(-4 * dt));
     camera.lookAt(target);
