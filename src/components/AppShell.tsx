@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
+import PageScene3D from "./desk/PageScene3D";
 
 const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -28,8 +29,9 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider defaultOpen>
       <div className="min-h-screen flex w-full bg-transparent">
+        <PageScene3D />
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="relative z-10 flex-1 flex flex-col min-w-0">
           <header className="sticky top-4 z-30 mx-3 md:mx-6 mt-4">
             <div className="glass rounded-full flex items-center justify-between gap-3 pl-4 pr-2 h-14 shadow-soft">
               <div className="flex items-center gap-3 min-w-0">
