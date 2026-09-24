@@ -103,6 +103,21 @@ function Particles({ color }: { color: string }) {
   );
 }
 
+export function MiniScene3D({ kind }: { kind: Kind }) {
+  const pal = PALS.dark;
+  return (
+    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0.4, 5.5], fov: 42 }} gl={{ alpha: true, antialias: true }}>
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[3, 5, 4]} intensity={1.6} color="#f3e6c8" />
+      <pointLight position={[-3, -1, 2]} intensity={14} color={ACCENT} />
+      <Float speed={1.3} floatIntensity={0.6} rotationIntensity={0.2}>
+        <Hero kind={kind} pal={pal} />
+      </Float>
+      <Particles color="#d9c38a" />
+    </Canvas>
+  );
+}
+
 export default function PageScene3D() {
   const { pathname } = useLocation();
   const { theme } = useTheme();
@@ -110,6 +125,7 @@ export default function PageScene3D() {
   const pal = PALS[dark ? "dark" : "light"];
   const kind = routeKind(pathname);
   const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (kind === "dashboard") return null;
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 opacity-70 md:opacity-90">
