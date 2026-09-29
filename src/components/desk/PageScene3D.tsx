@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, RoundedBox, Torus, Icosahedron, Octahedron } from "@react-three/drei";
+import { Float, Html, RoundedBox, Torus, Icosahedron, Octahedron } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useLocation } from "react-router-dom";
@@ -118,6 +118,73 @@ export function MiniScene3D({ kind }: { kind: Kind }) {
   );
 }
 
+type ChatSceneMessage = { id: string; role: "user" | "assistant"; content: string };
+
+function ChatBubble({ message, index, total, pal }: { message: ChatSceneMessage; index: number; total: number; pal: Pal }) {
+  const ref = useRef<THREE.Group>(null);
+  const isUser = message.role === "user";
+  const y = (total - 1) * 0.55 - index * 1.1;
+  const x = isUser ? 0.72 : -0.72;
+  const width = isUser ? 2.65 : 3.05;
+
+  useFrame((state, delta) => {
+    if (!ref.current) return;
+    const target = Math.sin(state.clock.elapsedTime * 0.8 + index) * 0.05;
+    ref.current.rotation.y = THREE.MathUtils.damp(ref.current.rotation.y, target, 4, Math.min(delta, 0.05));
+  });
+
+  return (
+    <group ref={ref} position={[x, y, index * -0.12]}>
+      <RoundedBox args={[width, 0.82, 0.16]} radius={0.18} smoothness={4}>
+        <meshStandardMaterial color={isUser ? ACCENT : pal.main} roughness={0.3} metalness={0.12} />
+      </RoundedBox>
+      <Html transform position={[0, 0, 0.1]} distanceFactor={5.5} center>
+        <div className={`w-[220px] select-none px-4 py-3 ${isUser ? "text-primary-foreground" : "text-foreground"}`}>
+          <p className="mb-1 text-[8px] font-semibold uppercase tracking-[0.16em] opacity-60">{isUser ? "You" : "StudyBuddy"}</p>
+          <p className="line-clamp-2 text-[11px] leading-4">{message.content || "Thinking…"}</p>
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+export function ChatThread3D({ messages, isTyping = false }: { messages: ChatSceneMessage[]; isTyping?: boolean }) {
+  const { theme } = useTheme();
+  const pal = PALS[theme === "dark" ? "dark" : "light"];
+  const visible = messages.filter((message) => message.id !== "welcome").slice(-4);
+  const sceneMessages = isTyping && visible[visible.length - 1]?.role !== "assistant"
+    ? [...visible, { id: "thinking", role: "assistant" as const, content: "Thinking through your question…" }]
+    : visible;
+
+  return (
+    <div className="relative h-full min-h-[320px] overflow-hidden rounded-[1.75rem] border border-border/60 bg-card/40 backdrop-blur-2xl">
+      <div className="pointer-events-none absolute left-5 top-5 z-10">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Live 3D thread</p>
+        <p className="mt-1 text-sm text-foreground">Questions and answers in motion</p>
+      </div>
+      <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 8], fov: 43 }} gl={{ alpha: true, antialias: true }}>
+        <ambientLight intensity={pal.ambient + 0.25} />
+        <directionalLight position={[4, 5, 5]} intensity={1.5} />
+        <pointLight position={[-3, -2, 3]} intensity={10} color={ACCENT} />
+        <group position={[0, -0.15, 0]} scale={sceneMessages.length > 3 ? 0.82 : 1}>
+          {sceneMessages.length ? sceneMessages.map((message, index) => (
+            <ChatBubble key={message.id} message={message} index={index} total={sceneMessages.length} pal={pal} />
+          )) : (
+            <Float speed={1.2} floatIntensity={0.5} rotationIntensity={0.15}>
+              <Hero kind="chat" pal={pal} />
+            </Float>
+          )}
+        </group>
+        <Particles color={theme === "dark" ? "#ffffff" : "#555555"} />
+      </Canvas>
+      <div className="pointer-events-none absolute inset-x-5 bottom-4 flex items-center justify-between text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <span>{sceneMessages.length ? `${sceneMessages.length} recent messages` : "Ask your first question"}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-destructive" /> live</span>
+      </div>
+    </div>
+  );
+}
+
 export default function PageScene3D() {
   const { pathname } = useLocation();
   const { theme } = useTheme();
@@ -125,7 +192,7 @@ export default function PageScene3D() {
   const pal = PALS[dark ? "dark" : "light"];
   const kind = routeKind(pathname);
   const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  if (kind === "dashboard") return null;
+  if (kind === "dashboard" || kind === "chat") return null;
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 opacity-70 md:opacity-90">
