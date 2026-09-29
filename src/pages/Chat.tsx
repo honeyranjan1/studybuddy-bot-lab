@@ -14,6 +14,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import logo from "@/assets/studybuddy-logo.png";
+import { ChatThread3D } from "@/components/desk/PageScene3D";
+import { Message as AIMessage, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { Shimmer } from "@/components/ai-elements/shimmer";
 
 type ContentPart =
   | { type: "text"; text: string }
@@ -70,7 +73,7 @@ const Chat = () => {
   const [ttsEnabled, setTtsEnabled] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | null>(null);
   const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null);
-  const [historyOpen, setHistoryOpen] = useState(true);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -508,8 +511,9 @@ const Chat = () => {
           </button>
         </div>
 
+        <div className="flex min-h-0 flex-1">
         {/* Messages / Editorial hero */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto pt-24">
+        <div ref={scrollRef} className="min-w-0 flex-1 overflow-y-auto pt-24">
           {messages.length === 1 && messages[0].id === "welcome" ? (
             /* Editorial empty-state hero */
             <div className="max-w-4xl mx-auto px-6 md:px-10 pt-12 pb-8">
@@ -595,22 +599,18 @@ const Chat = () => {
                           : <User className="w-4 h-4" />
                         }
                       </div>
-                      <div className={`rounded-3xl px-5 py-3 ${
-                        msg.role === "user"
-                          ? "bg-[#1a1a1a] text-white rounded-tr-md"
-                          : "bg-white border border-black/5 text-[#1a1a1a] rounded-tl-md shadow-soft"
-                      }`}>
+                      <AIMessage from={msg.role} className="w-auto">
+                      <MessageContent className={msg.role === "user" ? "rounded-2xl rounded-tr-sm bg-primary px-5 py-3 text-primary-foreground" : "px-1 py-2"}>
                         {msg.imageUrl && (
                           <img src={msg.imageUrl} alt="Uploaded" className="max-w-full max-h-56 rounded-xl mb-2 object-contain" />
                         )}
                         {msg.role === "assistant" ? (
-                          <div className="prose prose-sm max-w-none prose-p:my-2 prose-headings:font-display prose-headings:text-[#1a1a1a]">
-                            <ReactMarkdown>{msg.content}</ReactMarkdown>
-                          </div>
+                          <MessageResponse className="prose prose-sm max-w-none text-foreground prose-headings:font-display prose-headings:text-foreground">{msg.content}</MessageResponse>
                         ) : (
                           <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                         )}
-                      </div>
+                      </MessageContent>
+                      </AIMessage>
                     </div>
                   </motion.div>
                 ))}
@@ -621,17 +621,15 @@ const Chat = () => {
                   <div className="w-9 h-9 rounded-full bg-white shadow-soft overflow-hidden shrink-0">
                     <img src={logo} alt="AI" className="w-full h-full object-contain" />
                   </div>
-                  <div className="bg-white border border-black/5 rounded-3xl rounded-tl-md px-5 py-3.5 shadow-soft">
-                    <div className="flex gap-1">
-                      <span className="w-1.5 h-1.5 bg-[#1a1a1a]/40 rounded-full animate-bounce" />
-                      <span className="w-1.5 h-1.5 bg-[#1a1a1a]/40 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-1.5 h-1.5 bg-[#1a1a1a]/40 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                    </div>
-                  </div>
+                  <div className="px-1 py-3"><Shimmer className="text-sm">Thinking through it…</Shimmer></div>
                 </motion.div>
               )}
             </div>
           )}
+        </div>
+        <aside className="hidden w-[38%] min-w-[340px] max-w-[520px] p-3 pt-20 lg:block">
+          <ChatThread3D messages={messages} isTyping={isTyping} />
+        </aside>
         </div>
 
         {/* Pending image */}
