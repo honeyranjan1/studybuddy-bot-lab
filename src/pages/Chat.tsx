@@ -7,7 +7,6 @@ import {
   Mic, MicOff, Volume2, VolumeX, ImagePlus, X, Plus, MessageSquare, Trash2,
   PanelLeftClose, PanelLeftOpen, Pencil, Check, Search,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { streamChat } from "@/lib/streamChat";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
