@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Send, Brain, User, Sparkles, BookOpen, Calculator, FlaskConical, Code,
   Mic, MicOff, Volume2, VolumeX, ImagePlus, X, Plus, MessageSquare, Trash2,
@@ -13,9 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import logo from "@/assets/studybuddy-logo.png";
-import { ChatThread3D } from "@/components/desk/PageScene3D";
 import { Message as AIMessage, MessageContent, MessageResponse } from "@/components/ai-elements/message";
-import { Shimmer } from "@/components/ai-elements/shimmer";
 
 type ContentPart =
   | { type: "text"; text: string }
@@ -360,35 +357,35 @@ const Chat = () => {
   const grouped = groupSessions(sessions);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] bg-bg-base font-sans">
+    <div className="flex h-[calc(100dvh-5.5rem)] min-h-[400px] bg-background/90 font-sans text-foreground">
       {/* Conversation history sidebar */}
       <aside
         className={`${historyOpen ? "w-72" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0`}
       >
         <div className="w-72 h-full flex flex-col p-3 gap-3">
           {/* Sidebar card */}
-          <div className="flex-1 flex flex-col rounded-3xl bg-white/70 backdrop-blur-xl border border-black/5 shadow-soft overflow-hidden">
-            <div className="p-5 border-b border-black/5">
-              <p className="font-display text-xs uppercase tracking-[0.18em] text-[#8e8e8e] mb-3">conversations</p>
+          <div className="flex-1 flex flex-col rounded-3xl bg-card/80 backdrop-blur-xl border border-border/60 shadow-soft overflow-hidden">
+            <div className="p-5 border-b border-border/60">
+              <p className="font-display text-xs uppercase tracking-[0.18em] text-muted-foreground mb-3">conversations</p>
               <button
                 onClick={startNewChat}
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#1a1a1a] text-white rounded-full px-4 py-2.5 text-sm font-medium hover:bg-black transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 bg-foreground text-background rounded-full px-4 py-2.5 text-sm font-medium hover:bg-foreground/90 transition-colors"
               >
                 <Plus className="w-4 h-4" /> new chat
               </button>
               <div className="relative mt-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8e8e8e]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <input
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="search chats..."
-                  className="w-full pl-9 pr-8 h-9 text-xs rounded-full bg-bg-base border border-transparent focus:border-black/10 outline-none placeholder:text-[#8e8e8e]"
+                  className="w-full pl-9 pr-8 h-9 text-xs rounded-full bg-muted/50 border border-transparent focus:border-border outline-none placeholder:text-muted-foreground"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8e8e8e] hover:text-[#1a1a1a]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -399,13 +396,13 @@ const Chat = () => {
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
               {sessions.length === 0 ? (
                 <div className="text-center py-14 px-3">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-bg-base flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-[#8e8e8e]" />
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-muted/50 flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  <p className="text-xs text-[#4a4a4a] lowercase">
+                  <p className="text-xs text-muted-foreground lowercase">
                     {searchQuery ? "no matches found" : "no conversations yet"}
                   </p>
-                  <p className="text-[11px] text-[#8e8e8e] mt-1">
+                  <p className="text-[11px] text-muted-foreground mt-1">
                     {searchQuery ? "try a different search" : "start chatting to save history"}
                   </p>
                 </div>
@@ -413,7 +410,7 @@ const Chat = () => {
                 Object.entries(grouped).map(([label, items]) =>
                   items.length > 0 && (
                     <div key={label}>
-                      <p className="text-[10px] uppercase tracking-[0.18em] text-[#8e8e8e] font-medium px-2 mb-2">{label}</p>
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-medium px-2 mb-2">{label}</p>
                       <div className="space-y-1">
                         {items.map(s => {
                           const active = s.id === activeSessionId;
@@ -424,8 +421,8 @@ const Chat = () => {
                               onClick={() => !isRenaming && setActiveSessionId(s.id)}
                               className={`group flex items-center gap-2 px-3 py-2 rounded-2xl cursor-pointer text-sm transition-all ${
                                 active
-                                  ? "bg-[#1a1a1a] text-white"
-                                  : "text-[#1a1a1a]/80 hover:bg-bg-base"
+                                  ? "bg-foreground text-background"
+                                  : "text-foreground/80 hover:bg-muted/50"
                               }`}
                             >
                               {isRenaming ? (
@@ -445,14 +442,14 @@ const Chat = () => {
                                   <div className="opacity-0 group-hover:opacity-100 flex gap-0.5 shrink-0 transition-opacity">
                                     <button
                                       onClick={e => startRename(s, e)}
-                                      className={`p-1 rounded-full ${active ? "hover:bg-white/10" : "hover:bg-white"}`}
+                                      className={`p-1 rounded-full ${active ? "hover:bg-card/10" : "hover:bg-card"}`}
                                       title="Rename"
                                     >
                                       <Pencil className="w-3 h-3" />
                                     </button>
                                     <button
                                       onClick={e => deleteSession(s.id, e)}
-                                      className={`p-1 rounded-full ${active ? "hover:bg-white/10" : "hover:bg-white text-[#8e8e8e] hover:text-destructive"}`}
+                                      className={`p-1 rounded-full ${active ? "hover:bg-card/10" : "hover:bg-card text-muted-foreground hover:text-destructive"}`}
                                       title="Delete"
                                     >
                                       <Trash2 className="w-3 h-3" />
@@ -480,17 +477,17 @@ const Chat = () => {
           <div className="flex items-center gap-2 pointer-events-auto">
             <button
               onClick={() => setHistoryOpen(o => !o)}
-              className="h-10 w-10 rounded-full bg-white/70 backdrop-blur-xl border border-black/5 shadow-soft flex items-center justify-center text-[#1a1a1a] hover:bg-white transition"
+              className="h-10 w-10 rounded-full bg-card/80 backdrop-blur-xl border border-border/60 shadow-soft flex items-center justify-center text-foreground hover:bg-card transition"
               title={historyOpen ? "Hide history" : "Show history"}
             >
               {historyOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
             </button>
-            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/70 backdrop-blur-xl border border-black/5 shadow-soft rounded-full pl-1.5 pr-4 py-1.5">
-              <div className="w-7 h-7 rounded-full bg-white overflow-hidden shrink-0">
+            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-card/80 backdrop-blur-xl border border-border/60 shadow-soft rounded-full pl-1.5 pr-4 py-1.5">
+              <div className="w-7 h-7 rounded-full bg-card overflow-hidden shrink-0">
                 <img src={logo} alt="StudyBuddy" className="w-full h-full object-contain" />
               </div>
-              <span className="font-display text-sm text-[#1a1a1a] lowercase">studybuddy tutor</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
+              <span className="font-display text-sm text-foreground lowercase">studybuddy tutor</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             </div>
           </div>
           <button
@@ -501,8 +498,8 @@ const Chat = () => {
             }}
             className={`pointer-events-auto inline-flex items-center gap-2 rounded-full px-4 h-10 text-xs font-medium transition ${
               ttsEnabled
-                ? "bg-brand-green text-[#1a1a1a] shadow-glow"
-                : "bg-white/70 backdrop-blur-xl border border-black/5 text-[#1a1a1a] hover:bg-white"
+                ? "bg-brand-green text-foreground shadow-glow"
+                : "bg-card/80 backdrop-blur-xl border border-border/60 text-foreground hover:bg-card"
             }`}
           >
             {ttsEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
@@ -515,83 +512,66 @@ const Chat = () => {
         <div ref={scrollRef} className="min-w-0 flex-1 overflow-y-auto pt-24">
           {messages.length === 1 && messages[0].id === "welcome" ? (
             /* Editorial empty-state hero */
-            <div className="max-w-4xl mx-auto px-6 md:px-10 pt-12 pb-8">
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-xs uppercase tracking-[0.2em] text-[#8e8e8e] mb-6"
+            <div className="max-w-3xl mx-auto px-6 md:px-10 pt-8 pb-8">
+              <p
+                className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-6"
               >
-                ai tutor · always on
-              </motion.p>
-              <motion.h1
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.05 }}
-                className="font-display font-medium tracking-tight text-[42px] md:text-[68px] leading-[1.02] text-[#1a1a1a]"
+                Study session
+              </p>
+              <h1
+                className="font-display font-medium tracking-tight text-[42px] md:text-[68px] leading-[1.02] text-foreground"
               >
-                hey there,
+                A little focus.
                 <br />
-                <span className="text-[#8e8e8e]">what shall we</span>
+                <span className="text-muted-foreground">What shall we</span>
                 <br />
-                <span className="text-[#8e8e8e]">learn</span>{" "}
-                <span className="text-[#1a1a1a]">today?</span>
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
-                className="mt-6 text-[#4a4a4a] max-w-xl leading-relaxed"
+                <span className="text-muted-foreground">learn</span>{" "}
+                <span className="text-foreground">today?</span>
+              </h1>
+              <p
+                className="mt-6 text-muted-foreground max-w-xl leading-relaxed"
               >
-                Ask a question, drop an image of a problem, or speak your mind. StudyBuddy explains, quizzes, and coaches — one step at a time.
-              </motion.p>
+                What are you studying today? Bring a topic or a question, and we’ll work through it together.
+              </p>
 
               {/* Quick starts as editorial pills */}
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.45 }}
+              <div
                 className="mt-10"
               >
-                <p className="text-[11px] uppercase tracking-[0.18em] text-[#8e8e8e] mb-4">try one of these</p>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-4">try one of these</p>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {quickTopics.map((t, i) => {
                     const Icon = t.icon;
                     return (
-                      <motion.button
+                      <Button type="button" variant="ghost"
                         key={t.label}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 + i * 0.06 }}
                         onClick={() => sendMessage(t.prompt)}
-                        className="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-black/5 hover:border-[#1a1a1a]/20 hover:shadow-soft text-left transition-all"
+                        className="group justify-start flex items-center gap-4 h-auto whitespace-normal p-4 rounded-lg bg-card border border-border/60 hover:border-border hover:shadow-soft text-left transition-all"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] text-white group-hover:bg-brand-green group-hover:text-[#1a1a1a] flex items-center justify-center transition-colors shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-foreground text-background group-hover:bg-brand-green group-hover:text-foreground flex items-center justify-center transition-colors shrink-0">
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-[#1a1a1a] lowercase">{t.label}</p>
-                          <p className="text-xs text-[#6a6a6a] truncate">{t.prompt}</p>
+                          <p className="text-sm font-medium text-foreground lowercase">{t.label}</p>
+                          <p className="text-xs text-muted-foreground truncate">{t.prompt}</p>
                         </div>
-                      </motion.button>
+                      </Button>
                     );
                   })}
                 </div>
-              </motion.div>
+              </div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-6">
-              <AnimatePresence initial={false}>
+            <div className="max-w-3xl mx-auto px-5 md:px-10 py-8 space-y-10">
+              
                 {messages.map(msg => (
-                  <motion.div
+                  <div
                     key={msg.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div className={`flex items-start gap-3 max-w-[88%] ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${
-                        msg.role === "assistant" ? "bg-white shadow-soft" : "bg-[#1a1a1a] text-white"
+                        msg.role === "assistant" ? "bg-card shadow-soft" : "bg-foreground text-background"
                       }`}>
                         {msg.role === "assistant"
                           ? <img src={logo} alt="AI" className="w-full h-full object-contain" />
@@ -604,31 +584,28 @@ const Chat = () => {
                           <img src={msg.imageUrl} alt="Uploaded" className="max-w-full max-h-56 rounded-xl mb-2 object-contain" />
                         )}
                         {msg.role === "assistant" ? (
-                          <MessageResponse className="prose prose-sm max-w-none text-foreground prose-headings:font-display prose-headings:text-foreground">{msg.content}</MessageResponse>
+                          <MessageResponse className="prose max-w-none text-base leading-8 text-foreground prose-headings:font-display prose-headings:text-foreground prose-p:leading-8 prose-li:leading-8">{msg.content}</MessageResponse>
                         ) : (
-                          <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                          <p className="text-base whitespace-pre-wrap leading-7">{msg.content}</p>
                         )}
                       </MessageContent>
                       </AIMessage>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </AnimatePresence>
+              
 
               {isTyping && messages[messages.length - 1]?.role !== "assistant" && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-full bg-white shadow-soft overflow-hidden shrink-0">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-card shadow-soft overflow-hidden shrink-0">
                     <img src={logo} alt="AI" className="w-full h-full object-contain" />
                   </div>
-                  <div className="px-1 py-3"><Shimmer className="text-sm">Thinking through it…</Shimmer></div>
-                </motion.div>
+                  <div className="px-1 py-3"><p role="status" className="text-sm text-muted-foreground">Preparing your explanation…</p></div>
+                </div>
               )}
             </div>
           )}
         </div>
-        <aside className="hidden w-[38%] min-w-[340px] max-w-[520px] p-3 pt-20 lg:block">
-          <ChatThread3D messages={messages} isTyping={isTyping} />
-        </aside>
         </div>
 
         {/* Pending image */}
@@ -636,10 +613,10 @@ const Chat = () => {
           <div className="px-4 py-2">
             <div className="max-w-3xl mx-auto">
               <div className="relative inline-block">
-                <img src={pendingImagePreview} alt="Preview" className="h-20 rounded-2xl object-contain border border-black/5 shadow-soft" />
+                <img src={pendingImagePreview} alt="Preview" className="h-20 rounded-2xl object-contain border border-border/60 shadow-soft" />
                 <button
                   onClick={() => { setPendingImage(null); setPendingImagePreview(null); }}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center shadow-soft"
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center shadow-soft"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -653,14 +630,14 @@ const Chat = () => {
           <div className="max-w-3xl mx-auto">
             <form
               onSubmit={handleSubmit}
-              className="flex items-center gap-2 bg-white border border-black/5 rounded-full shadow-soft pl-2 pr-2 py-2 focus-within:border-[#1a1a1a]/20 transition-colors"
+              className="flex items-center gap-2 bg-card border border-border/60 rounded-full shadow-soft pl-2 pr-2 py-2 focus-within:border-border transition-colors"
             >
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleImageUpload} />
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isTyping}
-                className="h-9 w-9 rounded-full text-[#4a4a4a] hover:bg-bg-base flex items-center justify-center transition shrink-0 disabled:opacity-40"
+                className="h-9 w-9 rounded-full text-muted-foreground hover:bg-muted/50 flex items-center justify-center transition shrink-0 disabled:opacity-40"
                 title="Upload image"
               >
                 <ImagePlus className="w-4 h-4" />
@@ -670,7 +647,7 @@ const Chat = () => {
                 onClick={toggleListening}
                 disabled={isTyping}
                 className={`h-9 w-9 rounded-full flex items-center justify-center transition shrink-0 disabled:opacity-40 ${
-                  isListening ? "bg-destructive text-white" : "text-[#4a4a4a] hover:bg-bg-base"
+                  isListening ? "bg-destructive text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"
                 }`}
                 title={isListening ? "Stop" : "Voice input"}
               >
@@ -680,18 +657,18 @@ const Chat = () => {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder={isListening ? "listening..." : "message studybuddy..."}
-                className="flex-1 bg-transparent outline-none text-sm placeholder:text-[#8e8e8e] px-2 h-9"
+                className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground px-2 h-9"
                 disabled={isTyping}
               />
               <button
                 type="submit"
                 disabled={(!input.trim() && !pendingImage) || isTyping}
-                className="h-9 w-9 rounded-full bg-[#1a1a1a] text-white hover:bg-black flex items-center justify-center transition shrink-0 disabled:opacity-40"
+                className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90 flex items-center justify-center transition shrink-0 disabled:opacity-40"
               >
                 <Send className="w-4 h-4" />
               </button>
             </form>
-            <p className="text-[11px] text-[#8e8e8e] text-center mt-3 flex items-center justify-center gap-1.5 lowercase">
+            <p className="text-[11px] text-muted-foreground text-center mt-3 flex items-center justify-center gap-1.5 lowercase">
               <Sparkles className="w-3 h-3" />
               conversations saved automatically · voice & image supported
             </p>

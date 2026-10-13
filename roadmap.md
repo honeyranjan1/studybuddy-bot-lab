@@ -7,3 +7,5 @@
 - [x] Build a real-message-driven 3D AI Tutor thread with theme-aware question and answer bubbles
 - [x] Replace the dashboard with the premium layout while preserving live streak, XP, charts, and exams
 - [x] Verify the updated dashboard and AI Tutor in desktop and mobile previews
+
+- [ ] Remove duplicate 3D tutor messages and verify the calm single-transcript reading experience
