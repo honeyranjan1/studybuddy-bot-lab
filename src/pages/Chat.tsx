@@ -141,7 +141,10 @@ const Chat = () => {
   }, [activeSessionId, user]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const isWelcome = messages.length === 1 && messages[0]?.id === "welcome";
+    scroller.scrollTo({ top: isWelcome ? 0 : scroller.scrollHeight, behavior: "auto" });
   }, [messages, isTyping]);
 
   const speakText = useCallback((text: string) => {
