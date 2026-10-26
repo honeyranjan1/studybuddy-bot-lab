@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { getDocument, GlobalWorkerOptions, type PDFDocumentProxy } from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -10,7 +10,8 @@ import { FileText, FileUp, Loader2, RotateCcw, Sparkles, X } from "lucide-react"
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
-const MAX_PROMPT_CHARACTERS = 50_000;
+const MAX_PAGES_TO_READ = 100;
+const MAX_PROMPT_CHARACTERS = 40_000;
 
 async function extractPdfText(file: File) {
   const bytes = await file.arrayBuffer();
@@ -19,11 +20,12 @@ async function extractPdfText(file: File) {
     throw new Error("This file doesn’t appear to be a readable PDF. Please choose another file.");
   }
 
-  let document: PDFDocumentProxy | undefined;
+  const loadingTask = getDocument({ data: bytes });
   try {
-    document = await getDocument({ data: bytes }).promise;
+    const document = await loadingTask.promise;
     const pages: string[] = [];
-    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+    const pagesToRead = Math.min(document.numPages, MAX_PAGES_TO_READ);
+    for (let pageNumber = 1; pageNumber <= pagesToRead; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();
       const pageText = content.items
@@ -33,9 +35,9 @@ async function extractPdfText(file: File) {
         .join(" ");
       if (pageText) pages.push(`Page ${pageNumber}: ${pageText}`);
     }
-    return { pageCount: document.numPages, text: pages.join("\n\n") };
+    return { pageCount: document.numPages, pagesRead: pagesToRead, text: pages.join("\n\n") };
   } finally {
-    await document?.destroy();
+    await loadingTask.destroy();
   }
 }
 
@@ -139,7 +141,7 @@ const PdfSummary = () => {
       }
 
       const includedText = extracted.text.slice(0, MAX_PROMPT_CHARACTERS);
-      const omittedText = extracted.text.length > MAX_PROMPT_CHARACTERS;
+      const omittedText = extracted.text.length > MAX_PROMPT_CHARACTERS || extracted.pagesRead < extracted.pageCount;
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
         method: "POST",
         headers: {
@@ -159,7 +161,7 @@ Create a well-organized study guide with:
 4. Important terms with brief definitions.
 
 Document: ${file.name}
-Pages: ${extracted.pageCount}
+                  Pages read: ${extracted.pagesRead} of ${extracted.pageCount}
 ${omittedText ? "Note: This document is long, so only the first section of extracted text is included." : ""}
 
 Extracted PDF text:
@@ -174,7 +176,7 @@ ${includedText}`,
         throw new Error(getReadableError(response.status, responseBody));
       }
 
-      setPageCount(extracted.pageCount);
+      setPageCount(extracted.pagesRead);
       await streamSummary(response, setSummary);
       toast.success("Your study summary is ready.");
     } catch (error) {

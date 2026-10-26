@@ -13,6 +13,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import logo from "@/assets/studybuddy-logo.png";
 import { Message as AIMessage, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { TutorStudyRoom3D } from "@/components/desk/TutorStudyRoom3D";
+import { useTheme } from "@/hooks/useTheme";
 
 type ContentPart =
   | { type: "text"; text: string }
@@ -60,6 +62,7 @@ const groupSessions = (sessions: Session[]) => {
 
 const Chat = () => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const queryClient = useQueryClient();
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
@@ -360,10 +363,15 @@ const Chat = () => {
   const grouped = groupSessions(sessions);
 
   return (
-    <div className="flex h-[calc(100dvh-5.5rem)] min-h-[400px] bg-background/90 font-sans text-foreground">
+    <div className="relative isolate flex h-[calc(100dvh-5.5rem)] min-h-[400px] overflow-hidden bg-background/30 font-sans text-foreground">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <TutorStudyRoom3D dark={theme === "dark"} />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/55 to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/75 via-background/35 to-transparent" />
+      </div>
       {/* Conversation history sidebar */}
       <aside
-        className={`${historyOpen ? "w-72" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0`}
+        className={`relative z-10 ${historyOpen ? "w-72" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0`}
       >
         <div className="w-72 h-full flex flex-col p-3 gap-3">
           {/* Sidebar card */}
@@ -474,7 +482,7 @@ const Chat = () => {
       </aside>
 
       {/* Main chat area */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
+      <div className="relative z-10 flex-1 flex flex-col min-w-0">
         {/* Floating top bar */}
         <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-2 pointer-events-none">
           <div className="flex items-center gap-2 pointer-events-auto">
@@ -629,7 +637,7 @@ const Chat = () => {
         )}
 
         {/* Editorial composer capsule */}
-        <div className="px-4 md:px-6 pb-6 pt-2">
+        <div className="bg-background/45 px-4 pt-2 pb-3 backdrop-blur-xl md:px-6 md:pb-6">
           <div className="max-w-3xl mx-auto">
             <form
               onSubmit={handleSubmit}
