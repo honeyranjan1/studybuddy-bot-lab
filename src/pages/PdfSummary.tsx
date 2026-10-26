@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { getDocument, GlobalWorkerOptions, type PDFDocumentProxy } from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -19,9 +19,9 @@ async function extractPdfText(file: File) {
     throw new Error("This file doesn’t appear to be a readable PDF. Please choose another file.");
   }
 
-  let document: PDFDocumentProxy | undefined;
+  const loadingTask = getDocument({ data: bytes });
   try {
-    document = await getDocument({ data: bytes }).promise;
+    const document = await loadingTask.promise;
     const pages: string[] = [];
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
@@ -35,7 +35,7 @@ async function extractPdfText(file: File) {
     }
     return { pageCount: document.numPages, text: pages.join("\n\n") };
   } finally {
-    await document?.destroy();
+    await loadingTask.destroy();
   }
 }
 
