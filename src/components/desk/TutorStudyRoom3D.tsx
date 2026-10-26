@@ -3,13 +3,13 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 import * as THREE from "three";
-import deskAsset from "@/assets/study-room/desk.glb.asset.json";
-import chairAsset from "@/assets/study-room/chairDesk.glb.asset.json";
-import screenAsset from "@/assets/study-room/computerScreen.glb.asset.json";
-import keyboardAsset from "@/assets/study-room/computerKeyboard.glb.asset.json";
-import booksAsset from "@/assets/study-room/books.glb.asset.json";
-import lampAsset from "@/assets/study-room/lampRoundTable.glb.asset.json";
-import shelfAsset from "@/assets/study-room/bookcaseOpen.glb.asset.json";
+const deskAsset = { url: "/models/study-room/desk.glb" };
+const chairAsset = { url: "/models/study-room/chairDesk.glb" };
+const screenAsset = { url: "/models/study-room/computerScreen.glb" };
+const keyboardAsset = { url: "/models/study-room/computerKeyboard.glb" };
+const booksAsset = { url: "/models/study-room/books.glb" };
+const lampAsset = { url: "/models/study-room/lampRoundTable.glb" };
+const shelfAsset = { url: "/models/study-room/bookcaseOpen.glb" };
 
 type ModelAsset = { url: string };
 
