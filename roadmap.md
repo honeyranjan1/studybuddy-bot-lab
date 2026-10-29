@@ -9,6 +9,6 @@
 - [x] Verify the updated dashboard and AI Tutor in desktop and mobile previews
 
 - [x] Remove duplicate 3D tutor messages and verify the calm single-transcript reading experience
-- [ ] Fix PDF Summary extraction and error handling; redesign the summary workspace
-- [ ] Redesign AI Tutor as an immersive 3D study room while preserving one calm readable chat transcript
-- [ ] Verify PDF summarization and the Tutor page in the live preview, then close these items
+- [x] Fix PDF Summary extraction and error handling; redesign the summary workspace
+- [x] Redesign AI Tutor as an immersive 3D study room while preserving one calm readable chat transcript
+- [x] Verify PDF summarization and the Tutor page in the live preview
