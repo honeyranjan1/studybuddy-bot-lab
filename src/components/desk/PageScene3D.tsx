@@ -4,6 +4,7 @@ import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
+import { TutorStudyRoom3D } from "@/components/desk/TutorStudyRoom3D";
 
 const ACCENT = "#e5484d";
 type Pal = { main: string; soft: string; ambient: number };
@@ -193,6 +194,16 @@ export default function PageScene3D() {
   const kind = routeKind(pathname);
   const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   if (kind === "dashboard" || kind === "chat") return null;
+
+  if (kind === "pdf") {
+    return (
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+        <TutorStudyRoom3D dark={dark} />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-background/35 to-background/10" />
+      </div>
+    );
+  }
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 opacity-70 md:opacity-90">
