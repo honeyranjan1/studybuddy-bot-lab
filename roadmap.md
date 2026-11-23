@@ -12,4 +12,4 @@
 - [x] Fix PDF Summary extraction and error handling; redesign the summary workspace
 - [x] Redesign AI Tutor as an immersive 3D study room while preserving one calm readable chat transcript
 - [x] Verify PDF summarization and the Tutor page in the live preview
-- [ ] Reuse the PDF Summary study-room background across all study-tool pages
+- [x] Reuse the PDF Summary study-room background across all study-tool pages
