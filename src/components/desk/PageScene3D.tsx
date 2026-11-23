@@ -13,11 +13,12 @@ const PALS: Record<"dark" | "light", Pal> = {
   light: { main: "#ffffff", soft: "#b98a5f", ambient: 0.9 },
 };
 
-type Kind = "dashboard" | "chat" | "notes" | "cards" | "quiz" | "pdf" | "placement" | "partners" | "code" | "calendar" | "interview" | "default";
+type Kind = "dashboard" | "chat" | "tools" | "notes" | "cards" | "quiz" | "pdf" | "placement" | "partners" | "code" | "calendar" | "interview" | "default";
 
 const routeKind = (p: string): Kind => {
   if (p.startsWith("/dashboard")) return "dashboard";
   if (p.startsWith("/chat")) return "chat";
+  if (p.startsWith("/tools")) return "tools";
   if (p.startsWith("/notes")) return "notes";
   if (p.startsWith("/flashcards")) return "cards";
   if (p.startsWith("/quiz")) return "quiz";
@@ -195,7 +196,8 @@ export default function PageScene3D() {
   const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   if (kind === "dashboard" || kind === "chat") return null;
 
-  if (kind === "pdf") {
+  const studyRoomKinds: Kind[] = ["tools", "notes", "cards", "quiz", "pdf", "placement", "partners", "code", "calendar", "interview"];
+  if (studyRoomKinds.includes(kind)) {
     return (
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <TutorStudyRoom3D dark={dark} />
