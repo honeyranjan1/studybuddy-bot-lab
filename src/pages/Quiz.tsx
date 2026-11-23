@@ -6,11 +6,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
-  BookOpen, CheckCircle2, XCircle, Loader2, Play, RotateCcw, Trophy, ArrowRight, Sparkles,
+  ArrowRight, BookOpen, CheckCircle2, Loader2, Play, RotateCcw, Sparkles, Target, Trophy, XCircle,
 } from "lucide-react";
 
 type Question = {
@@ -168,183 +169,330 @@ const Quiz = () => {
     setTopic("");
   };
 
+  const subjectLabel = subjects.find((item) => item.value === subject)?.label ?? "Subject";
+  const difficultyLabel = difficulties.find((item) => item.value === difficulty)?.label ?? "Medium";
+
   return (
-    <div className="min-h-screen pt-20 pb-12 px-4">
-      <div className="container mx-auto max-w-2xl">
+    <div className="min-h-screen px-4 pb-16 pt-8 md:px-8 md:pt-10">
+      <div className="mx-auto max-w-6xl">
         <AnimatePresence mode="wait">
           {state === "setup" && (
-            <motion.div key="setup" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-display font-bold text-foreground mb-2">Take a Quiz 🎯</h1>
-                <p className="text-muted-foreground">AI generates personalized MCQ questions for you</p>
-              </div>
-
-              <Card className="p-6 space-y-6">
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Subject</Label>
-                  <Select value={subject} onValueChange={setSubject}>
-                    <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
-                    <SelectContent>
-                      {subjects.map((s) => (
-                        <SelectItem key={s.value} value={s.value}>{s.emoji} {s.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Topic</Label>
-                  <input
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder="e.g., Fractions, Newton's Laws, Python loops..."
-                    className="flex h-10 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Difficulty</Label>
-                  <div className="flex gap-2">
-                    {difficulties.map((d) => (
-                      <Button
-                        key={d.value}
-                        variant={difficulty === d.value ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setDifficulty(d.value)}
-                        className="flex-1"
-                      >
-                        {d.label}
-                      </Button>
-                    ))}
+            <motion.div key="setup" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }}>
+              <header className="mb-8 flex flex-col justify-between gap-5 md:mb-10 md:flex-row md:items-end">
+                <div className="max-w-3xl">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/65 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur-xl">
+                    <Sparkles className="size-3.5 text-accent" /> Quiz studio
                   </div>
+                  <h1 className="font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl md:text-6xl">
+                    Put your knowledge <span className="text-muted-foreground">to the test.</span>
+                  </h1>
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
+                    Choose a subject, focus on one topic, and set your pace.
+                  </p>
                 </div>
+                <div className="flex items-center gap-3 border-l border-border/70 pl-4 text-sm text-muted-foreground">
+                  <span className="font-display text-3xl text-foreground">01</span>
+                  <span>Session setup</span>
+                </div>
+              </header>
 
-                <Button onClick={generateQuiz} className="w-full" variant="hero" size="lg">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Quiz
-                </Button>
-              </Card>
+              <div className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr]">
+                <Card className="rounded-3xl border-border/60 bg-card/75 p-5 shadow-elevated backdrop-blur-2xl sm:p-8">
+                  <div className="mb-8 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">01 / 03</p>
+                      <h2 className="mt-1 font-display text-2xl font-semibold text-foreground">Build your set</h2>
+                    </div>
+                    <div className="grid size-11 place-items-center rounded-2xl bg-accent/15 text-accent">
+                      <BookOpen className="size-5" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2.5">
+                      <Label className="text-sm font-medium text-foreground">Subject</Label>
+                      <Select value={subject} onValueChange={setSubject}>
+                        <SelectTrigger className="h-12 rounded-xl border-border/70 bg-background/65">
+                          <SelectValue placeholder="Select a subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>{item.emoji} {item.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      <Label htmlFor="quiz-topic" className="text-sm font-medium text-foreground">Topic</Label>
+                      <Input
+                        id="quiz-topic"
+                        value={topic}
+                        onChange={(event) => setTopic(event.target.value)}
+                        placeholder="e.g., Fractions, Newton’s laws, Python loops"
+                        className="h-12 rounded-xl border-border/70 bg-background/65"
+                      />
+                    </div>
+
+                    <div className="space-y-2.5">
+                      <Label className="text-sm font-medium text-foreground">Difficulty</Label>
+                      <div className="grid grid-cols-3 gap-2" role="group" aria-label="Quiz difficulty">
+                        {difficulties.map((item) => (
+                          <Button
+                            key={item.value}
+                            type="button"
+                            variant={difficulty === item.value ? "default" : "outline"}
+                            onClick={() => setDifficulty(item.value)}
+                            className="h-11 rounded-xl"
+                          >
+                            {item.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button onClick={generateQuiz} className="h-12 w-full rounded-xl" variant="hero" size="lg">
+                      <Sparkles className="mr-2 size-4" /> Create my quiz
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card className="relative flex min-h-[360px] flex-col justify-between overflow-hidden rounded-3xl border-foreground/10 bg-foreground p-6 text-background shadow-elevated sm:p-8">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs text-background/65">Session preview</p>
+                    <div className="grid size-10 place-items-center rounded-full border border-background/20 text-accent">
+                      <Target className="size-4" />
+                    </div>
+                  </div>
+
+                  <div className="py-8">
+                    <div className="flex items-end gap-3">
+                      <span className="font-display text-8xl leading-none">05</span>
+                      <span className="pb-2 text-sm text-background/65">questions</span>
+                    </div>
+                    <div className="mt-6 grid grid-cols-5 gap-2" aria-label="Five questions">
+                      {Array.from({ length: 5 }, (_, index) => (
+                        <div key={index} className="h-1.5 rounded-full bg-accent/90" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 border-t border-background/15 pt-5 text-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-background/60">Subject</span>
+                      <span className="truncate text-right">{subject ? `${subjects.find((item) => item.value === subject)?.emoji ?? ""} ${subjectLabel}` : "Not selected"}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-background/60">Topic</span>
+                      <span className="max-w-[60%] truncate text-right">{topic.trim() || "Not set"}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-background/60">Level</span>
+                      <span>{difficultyLabel}</span>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </motion.div>
           )}
 
           {state === "loading" && (
-            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-              <h2 className="text-xl font-display font-semibold text-foreground mb-2">Generating your quiz...</h2>
-              <p className="text-muted-foreground">AI is creating personalized questions</p>
-            </motion.div>
-          )}
-
-          {state === "playing" && questions[currentQ] && (
-            <motion.div key={`q-${currentQ}`} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Question {currentQ + 1} of {questions.length}</span>
-                  <span className="text-sm font-medium text-primary">{subject} • {difficulty}</span>
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mx-auto flex min-h-[55vh] max-w-xl items-center justify-center">
+              <Card className="w-full rounded-3xl border-border/60 bg-card/75 p-10 text-center shadow-elevated backdrop-blur-2xl">
+                <div className="mx-auto mb-6 grid size-16 place-items-center rounded-2xl bg-accent/15 text-accent">
+                  <Loader2 className="size-7 animate-spin" />
                 </div>
-                <Progress value={((currentQ + 1) / questions.length) * 100} className="h-2" />
-              </div>
-
-              <Card className="p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-6">{questions[currentQ].question}</h2>
-
-                <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} disabled={showExplanation}>
-                  <div className="space-y-3">
-                    {questions[currentQ].options.map((opt, i) => {
-                      const isCorrect = i === questions[currentQ].correctIndex;
-                      const isSelected = parseInt(selectedAnswer) === i;
-                      let borderClass = "border-border";
-                      if (showExplanation) {
-                        if (isCorrect) borderClass = "border-green-500 bg-green-500/10";
-                        else if (isSelected && !isCorrect) borderClass = "border-destructive bg-destructive/10";
-                      }
-
-                      return (
-                        <Label
-                          key={i}
-                          htmlFor={`opt-${i}`}
-                          className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${borderClass} ${!showExplanation && isSelected ? "border-primary bg-primary/5" : ""}`}
-                        >
-                          <RadioGroupItem value={i.toString()} id={`opt-${i}`} />
-                          <span className="text-sm text-foreground flex-1">{opt}</span>
-                          {showExplanation && isCorrect && <CheckCircle2 className="w-5 h-5 text-green-500" />}
-                          {showExplanation && isSelected && !isCorrect && <XCircle className="w-5 h-5 text-destructive" />}
-                        </Label>
-                      );
-                    })}
-                  </div>
-                </RadioGroup>
-
-                {showExplanation && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 rounded-xl bg-secondary">
-                    <p className="text-sm font-medium text-foreground mb-1">💡 Explanation</p>
-                    <p className="text-sm text-muted-foreground">{questions[currentQ].explanation}</p>
-                  </motion.div>
-                )}
-
-                <div className="mt-6 flex gap-3">
-                  {!showExplanation ? (
-                    <Button onClick={submitAnswer} disabled={selectedAnswer === ""} className="w-full" variant="hero">
-                      Submit Answer
-                    </Button>
-                  ) : (
-                    <Button onClick={nextQuestion} className="w-full" variant="hero">
-                      {currentQ + 1 < questions.length ? (
-                        <>Next Question <ArrowRight className="w-4 h-4 ml-2" /></>
-                      ) : (
-                        <>See Results <Trophy className="w-4 h-4 ml-2" /></>
-                      )}
-                    </Button>
-                  )}
-                </div>
+                <p className="text-xs text-muted-foreground">{subjectLabel} / {difficultyLabel}</p>
+                <h2 className="mt-2 font-display text-2xl font-semibold text-foreground">Preparing your questions</h2>
+                <p className="mt-2 text-sm text-muted-foreground">A moment while your set comes together.</p>
               </Card>
             </motion.div>
           )}
 
-          {state === "results" && (
-            <motion.div key="results" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <Card className="p-8 text-center">
-                <div className="w-20 h-20 rounded-full gradient-hero flex items-center justify-center mx-auto mb-4">
-                  <Trophy className="w-10 h-10 text-primary-foreground" />
+          {state === "playing" && questions[currentQ] && (
+            <motion.div key={`q-${currentQ}`} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}>
+              <header className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                  <p className="text-sm text-muted-foreground">{subjectLabel} / {difficultyLabel}</p>
+                  <h1 className="mt-1 font-display text-3xl font-semibold text-foreground sm:text-4xl">Knowledge check</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">{topic}</p>
                 </div>
-                <h1 className="text-3xl font-display font-bold text-foreground mb-2">Quiz Complete!</h1>
-                <p className="text-muted-foreground mb-6">{subject} — {topic}</p>
+                <div className="inline-flex items-center gap-2 self-start rounded-full border border-border/70 bg-card/65 px-4 py-2 text-sm text-foreground backdrop-blur-xl sm:self-auto">
+                  <span className="size-2 rounded-full bg-accent" /> Question {currentQ + 1} of {questions.length}
+                </div>
+              </header>
 
-                <div className="text-5xl font-display font-bold text-primary mb-2">{score}%</div>
-                <p className="text-muted-foreground mb-8">
-                  {correctCount} out of {questions.length} correct
-                </p>
+              <div className="mb-6 flex items-center gap-4">
+                <Progress value={((currentQ + 1) / questions.length) * 100} className="h-1.5 flex-1" />
+                <span className="min-w-12 text-right text-xs text-muted-foreground">{Math.round(((currentQ + 1) / questions.length) * 100)}%</span>
+              </div>
 
-                <div className="space-y-3 mb-8 text-left">
-                  {questions.map((q, i) => {
-                    const isCorrect = answers[i] === q.correctIndex;
+              <div className="grid items-start gap-5 lg:grid-cols-[1.5fr_0.7fr]">
+                <Card className="rounded-3xl border-border/60 bg-card/75 p-5 shadow-elevated backdrop-blur-2xl sm:p-8">
+                  <div className="mb-6 flex items-center justify-between gap-4">
+                    <span className="text-xs text-muted-foreground">Question {String(currentQ + 1).padStart(2, "0")}</span>
+                    <span className="rounded-full bg-secondary/80 px-3 py-1 text-xs text-secondary-foreground">{difficultyLabel}</span>
+                  </div>
+                  <h2 className="mb-7 font-display text-2xl font-semibold leading-snug text-foreground sm:text-3xl">
+                    {questions[currentQ].question}
+                  </h2>
+
+                  <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} disabled={showExplanation}>
+                    <div className="space-y-3">
+                      {questions[currentQ].options.map((option, index) => {
+                        const isCorrect = index === questions[currentQ].correctIndex;
+                        const isSelected = parseInt(selectedAnswer) === index;
+                        let optionClass = "border-border/60 bg-background/55 hover:border-foreground/20 hover:bg-background/80";
+                        if (showExplanation && isCorrect) optionClass = "border-success/50 bg-success/10";
+                        else if (showExplanation && isSelected) optionClass = "border-destructive/50 bg-destructive/10";
+                        else if (isSelected) optionClass = "border-accent/70 bg-accent/10";
+
+                        return (
+                          <Label
+                            key={index}
+                            htmlFor={`opt-${index}`}
+                            className={`flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors ${optionClass}`}
+                          >
+                            <RadioGroupItem value={index.toString()} id={`opt-${index}`} />
+                            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-secondary text-xs font-semibold text-muted-foreground">
+                              {String.fromCharCode(65 + index)}
+                            </span>
+                            <span className="min-w-0 flex-1 text-sm leading-relaxed text-foreground">{option}</span>
+                            {showExplanation && isCorrect && <CheckCircle2 className="size-5 shrink-0 text-success" />}
+                            {showExplanation && isSelected && !isCorrect && <XCircle className="size-5 shrink-0 text-destructive" />}
+                          </Label>
+                        );
+                      })}
+                    </div>
+                  </RadioGroup>
+
+                  {showExplanation && (
+                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-r-xl border-l-2 border-accent bg-secondary/75 p-4">
+                      <p className="mb-1 text-sm font-medium text-foreground">Explanation</p>
+                      <p className="text-sm leading-relaxed text-muted-foreground">{questions[currentQ].explanation}</p>
+                    </motion.div>
+                  )}
+
+                  <div className="mt-7">
+                    {!showExplanation ? (
+                      <Button onClick={submitAnswer} disabled={selectedAnswer === ""} className="h-12 w-full rounded-xl" variant="hero">
+                        Check answer <ArrowRight className="ml-2 size-4" />
+                      </Button>
+                    ) : (
+                      <Button onClick={nextQuestion} className="h-12 w-full rounded-xl" variant="hero">
+                        {currentQ + 1 < questions.length ? (
+                          <>Next question <ArrowRight className="ml-2 size-4" /></>
+                        ) : (
+                          <>See results <Trophy className="ml-2 size-4" /></>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="rounded-3xl border-border/60 bg-card/65 p-6 shadow-card backdrop-blur-2xl">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-sm font-medium text-foreground">Your progress</p>
+                    <Target className="size-4 text-accent" />
+                  </div>
+                  <div className="mt-6 flex items-end gap-2">
+                    <span className="font-display text-5xl leading-none text-foreground">{answers.length}</span>
+                    <span className="pb-1 text-sm text-muted-foreground">of {questions.length} answered</span>
+                  </div>
+                  <Progress value={(answers.length / questions.length) * 100} className="mt-5 h-1.5" />
+                  <div className="mt-6 space-y-4 border-t border-border/60 pt-5 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-muted-foreground">Current step</span>
+                      <span className="text-foreground">{String(currentQ + 1).padStart(2, "0")} / {questions.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-muted-foreground">Answer status</span>
+                      <span className="text-right text-foreground">{showExplanation ? "Reviewed" : selectedAnswer ? "Selected" : "Waiting"}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-muted-foreground">Topic</span>
+                      <span className="max-w-[60%] truncate text-right text-foreground">{topic}</span>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </motion.div>
+          )}
+
+          {state === "results" && (
+            <motion.div key="results" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-5xl">
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground">{subjectLabel} / {difficultyLabel}</p>
+                <h1 className="mt-1 font-display text-4xl font-semibold text-foreground sm:text-5xl">Session complete</h1>
+                <p className="mt-2 text-muted-foreground">{topic}</p>
+              </div>
+
+              <Card className="mb-6 rounded-3xl border-foreground/10 bg-foreground p-6 text-background shadow-elevated backdrop-blur-2xl sm:p-8">
+                <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-4">
+                    <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground">
+                      <Trophy className="size-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-background/65">Your score</p>
+                      <p className="mt-1 font-display text-3xl font-semibold">{correctCount} correct answers</p>
+                    </div>
+                  </div>
+                  <div className="font-display text-6xl font-semibold text-accent sm:text-7xl">{score}%</div>
+                </div>
+                <div className="mt-8 grid grid-cols-2 gap-4 border-t border-background/15 pt-5 sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs text-background/60">Questions</p>
+                    <p className="mt-1 text-lg">{questions.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-background/60">Correct</p>
+                    <p className="mt-1 text-lg">{correctCount} / {questions.length}</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <p className="text-xs text-background/60">Topic</p>
+                    <p className="mt-1 truncate text-lg">{topic}</p>
+                  </div>
+                </div>
+              </Card>
+
+              <section className="rounded-3xl border border-border/60 bg-card/70 px-5 py-6 shadow-card backdrop-blur-2xl sm:px-8">
+                <div className="mb-3 flex items-end justify-between gap-4">
+                  <h2 className="font-display text-2xl font-semibold text-foreground">Question review</h2>
+                  <span className="text-sm text-muted-foreground">{questions.length} items</span>
+                </div>
+                <div className="divide-y divide-border/60">
+                  {questions.map((question, index) => {
+                    const isCorrect = answers[index] === question.correctIndex;
                     return (
-                      <div key={i} className={`p-3 rounded-xl border ${isCorrect ? "border-green-500/30 bg-green-500/5" : "border-destructive/30 bg-destructive/5"}`}>
-                        <div className="flex items-start gap-2">
-                          {isCorrect ? <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />}
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{q.question}</p>
-                            {!isCorrect && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Your answer: {q.options[answers[i]]} → Correct: {q.options[q.correctIndex]}
-                              </p>
-                            )}
-                          </div>
+                      <div key={index} className="flex items-start gap-3 py-4">
+                        {isCorrect ? (
+                          <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
+                        ) : (
+                          <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium leading-relaxed text-foreground">{question.question}</p>
+                          {!isCorrect && (
+                            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                              Your answer: {question.options[answers[index]]} · Correct answer: {question.options[question.correctIndex]}
+                            </p>
+                          )}
                         </div>
                       </div>
                     );
                   })}
                 </div>
+              </section>
 
-                <div className="flex gap-3">
-                  <Button onClick={resetQuiz} variant="outline" className="flex-1">
-                    <RotateCcw className="w-4 h-4 mr-2" /> New Quiz
-                  </Button>
-                  <Button onClick={() => { setCurrentQ(0); setAnswers([]); setSelectedAnswer(""); setShowExplanation(false); setState("playing"); }} variant="hero" className="flex-1">
-                    <Play className="w-4 h-4 mr-2" /> Retry
-                  </Button>
-                </div>
-              </Card>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button onClick={resetQuiz} variant="outline" className="h-12 flex-1 rounded-xl">
+                  <RotateCcw className="mr-2 size-4" /> New quiz
+                </Button>
+                <Button onClick={() => { setCurrentQ(0); setAnswers([]); setSelectedAnswer(""); setShowExplanation(false); setState("playing"); }} variant="hero" className="h-12 flex-1 rounded-xl">
+                  <Play className="mr-2 size-4" /> Try again
+                </Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
